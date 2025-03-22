@@ -270,6 +270,7 @@ public abstract class EffectComponent {
             String key = match.group().substring(1, match.group().length() - 1);
             if (data.contains(key)) text = text.replace(match.group(), data.get(key));
             else if (key.equals("player")) text = text.replace(match.group(), caster.getName());
+            else if (key.equals("playerUUID")) text = text.replace(match.group(), caster.getUniqueId().toString());
             else if (key.equals("target")) text = text.replace(match.group(), target.getName());
             else if (key.equals("targetUUID")) text = text.replace(match.group(), target.getUniqueId().toString());
             else {
