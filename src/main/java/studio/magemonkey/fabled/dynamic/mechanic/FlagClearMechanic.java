@@ -57,8 +57,8 @@ public class FlagClearMechanic extends MechanicComponent {
             return false;
         }
 
-        String key = filter(caster, target, settings.getString(KEY));
         for (LivingEntity target : targets) {
+            String key = filter(caster, target, settings.getString(KEY));
             FlagManager.removeFlag(target, key);
         }
         return targets.size() > 0;
