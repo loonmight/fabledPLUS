@@ -2,6 +2,7 @@ package studio.magemonkey.fabled.dynamic.condition;
 
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import studio.magemonkey.codex.mccore.config.parse.DataSection;
 import studio.magemonkey.fabled.dynamic.ComponentType;
 import studio.magemonkey.fabled.dynamic.EffectComponent;
 
