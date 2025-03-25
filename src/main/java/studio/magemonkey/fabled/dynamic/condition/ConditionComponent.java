@@ -15,12 +15,21 @@ import java.util.stream.Collectors;
  */
 public abstract class ConditionComponent extends EffectComponent {
 
+    private static final String INVERT = "invert";
+    protected boolean invert;
+
     /**
      * {@inheritDoc}
      */
     @Override
     public ComponentType getType() {
         return ComponentType.CONDITION;
+    }
+
+    @Override
+    public void load(studio.magemonkey.fabled.dynamic.DynamicSkill skill, DataSection config) {
+        super.load(skill, config);
+        invert = settings.getString(INVERT, "false").equalsIgnoreCase("true");
     }
 
     /**
@@ -30,7 +39,7 @@ public abstract class ConditionComponent extends EffectComponent {
     public boolean execute(
             final LivingEntity caster, final int level, final List<LivingEntity> targets, boolean force) {
         final List<LivingEntity> filtered = targets.stream()
-                .filter(t -> test(caster, level, t))
+            .filter(t -> invert != test(caster, level, t))
                 .collect(Collectors.toList());
 
         return filtered.size() > 0 && executeChildren(caster, level, filtered, force);
@@ -47,7 +56,7 @@ public abstract class ConditionComponent extends EffectComponent {
                             int level,
                             Supplier<List<LivingEntity>> targetSupplier) {
         super.playPreview(onPreviewStop, caster, level, () -> targetSupplier.get().stream()
-                .filter(t -> test(caster, level, t))
+            .filter(t -> invert != test(caster, level, t))
                 .collect(Collectors.toList()));
     }
 }
