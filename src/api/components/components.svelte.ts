@@ -1145,6 +1145,14 @@ class WorldTarget extends FabledTarget {
 /**
  * Adds the options for item-check related effects to the component
  */
+
+const conditionOptions = (): ComponentOption[] => {
+    return [
+        new BooleanSelect('Invert', 'invert', false)
+            .setTooltip('If enabled, the condition will pass when it normally would fail, and vice versa'),
+    ];
+};
+
 const itemConditionOptions = (matOption: ComponentOption = new MaterialSelect(false, 'Arrow')
 	.requireValue('check-mat', [true])
 	.setTooltip('The type the item needs to be')): ComponentOption[] => {
@@ -2026,6 +2034,7 @@ class ValueCondition extends FabledCondition {
 			name:         'Value',
 			description:  'Applies child components if a stored value is within the given range',
 			data:         [
+				...conditionOptions(),
 				new StringSelect('Key', 'key', 'value')
 					.setTooltip('The unique string used for the value set by the Value mechanics'),
 				new AttributeSelect('Min Value', 'min-value', 1)
