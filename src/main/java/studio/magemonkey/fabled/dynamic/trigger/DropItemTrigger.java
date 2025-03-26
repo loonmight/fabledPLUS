@@ -28,6 +28,10 @@ public class DropItemTrigger implements Trigger<PlayerDropItemEvent> {
      */
     @Override
     public boolean shouldTrigger(PlayerDropItemEvent event, int level, Settings settings) {
+        boolean cancelEvent = settings.getBool("cancel");
+        if (cancelEvent) {
+            event.setCancelled(true);
+        }
 
         return settings.getString("drop multiple").equalsIgnoreCase("Ignore") ||
                 (event.getItemDrop().getItemStack().getAmount() > 1) == settings.getString("drop multiple")
