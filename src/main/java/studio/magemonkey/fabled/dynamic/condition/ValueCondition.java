@@ -43,11 +43,6 @@ public class ValueCondition extends ConditionComponent {
     }
 
     @Override
-    public boolean execute(LivingEntity caster, int level, List<LivingEntity> targets, boolean force) {
-        return test(caster, level, null) && executeChildren(caster, level, targets, force);
-    }
-
-    @Override
     boolean test(final LivingEntity caster, final int level, final LivingEntity target) {
         final String key  = settings.getString(KEY);
         final double min  = parseValues(caster, MIN, level, 1);
