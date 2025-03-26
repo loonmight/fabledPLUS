@@ -2042,7 +2042,7 @@ class ValueCondition extends FabledCondition {
 				new AttributeSelect('Max Value', 'max-value', 999)
 					.setTooltip('The upper bound of the required value')
 			],
-			summaryItems: ['key', 'min-value', 'max-value']
+			summaryItems: ['key', 'min-value', 'max-value', 'invert']
 		});
 	}
 
@@ -2055,13 +2055,15 @@ class ValueTextCondition extends FabledCondition {
 			name:        'Value Text',
 			description: 'Applies child components if text value match to the settings',
 			data:        [
+				...conditionOptions(),
 				new DropdownSelect('Mode', 'mode', ['REGEX', 'EXACTLY', 'CONTAIN', 'START', 'END'], 'EXACTLY')
 					.setTooltip('The comparison mode should be conditioned.'),
 				new StringSelect('Key', 'value', '')
 					.setTooltip('Key of the value to be compared.'),
 				new StringSelect('Expect', 'expect', '')
 					.setTooltip('Strings used for comparison.')
-			]
+			],
+			summaryItems: ['value', 'mode', 'expect', 'invert']
 		});
 	}
 
