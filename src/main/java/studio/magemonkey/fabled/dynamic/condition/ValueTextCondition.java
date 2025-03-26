@@ -24,11 +24,6 @@ public class ValueTextCondition extends ConditionComponent {
     }
 
     @Override
-    public boolean execute(LivingEntity caster, int level, List<LivingEntity> targets, boolean force) {
-        return test(caster, level, null) && executeChildren(caster, level, targets, force);
-    }
-
-    @Override
     boolean test(final LivingEntity caster, final int level, final LivingEntity target) {
         final CompareMode mode   = CompareMode.valueOf(settings.getString(MODE).toUpperCase(Locale.US));
         final Object      value  = DynamicSkill.getCastData(caster).getRaw(settings.getString(VALUE));
