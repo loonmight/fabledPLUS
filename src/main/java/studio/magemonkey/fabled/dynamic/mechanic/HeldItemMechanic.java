@@ -60,10 +60,7 @@ public class HeldItemMechanic extends MechanicComponent {
 
             worked = true;
             Player player = (Player) target;
-            if (Fabled.getSettings().isSkillBarEnabled() && Fabled.getData(player)
-                    .getSkillBar()
-                    .isWeaponSlot(slot))
-                player.getInventory().setHeldItemSlot(slot);
+            player.getInventory().setHeldItemSlot(slot);
         }
 
         return worked;
