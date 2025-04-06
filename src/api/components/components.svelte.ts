@@ -1990,6 +1990,22 @@ class StatusCondition extends FabledCondition {
 	public static override new = () => new this();
 }
 
+class TagCondition extends FabledCondition {
+	public constructor() {
+		super({
+			name:         'Tag',
+			description:  'Applies child components if the target has the required scoreboard tag',
+			data:         [
+				new StringSelect('Tag', 'tag', 'some_tag')
+					.setTooltip('The scoreboard tag the target needs to have')
+			],
+			summaryItems: ['tag']
+		});
+	}
+
+	public static override new = () => new this();
+}
+
 class TimeCondition extends FabledCondition {
 	public constructor() {
 		super({
@@ -5636,6 +5652,7 @@ export const initComponents = () => {
 		SLOT:           { name: 'Slot', component: SlotCondition },
 		SPRINT:         { name: 'Sprint', component: SprintCondition },
 		STATUS:         { name: 'Status', component: StatusCondition },
+		TAG:            { name: 'Tag', component: TagCondition },
 		TIME:           { name: 'Time', component: TimeCondition },
 		TOOL:           { name: 'Tool', component: ToolCondition },
 		VALUE:          { name: 'Value', component: ValueCondition },
