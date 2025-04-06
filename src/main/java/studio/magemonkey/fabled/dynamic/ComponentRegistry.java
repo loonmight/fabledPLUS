@@ -140,6 +140,7 @@ public class ComponentRegistry {
         register(new SlotCondition());
         register(new SprintCondition());
         register(new StatusCondition());
+        register(new TagCondition());
         register(new TimeCondition());
         register(new ToolCondition());
         register(new ValueCondition());
