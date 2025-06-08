@@ -79,6 +79,7 @@ import studio.magemonkey.fabled.task.GUITask;
 import studio.magemonkey.fabled.task.ManaTask;
 import studio.magemonkey.fabled.task.SaveTask;
 import studio.magemonkey.fabled.thread.MainThread;
+import studio.loonmight.emeraldglow.GlowWhileOnEmerald;
 
 import java.io.File;
 import java.io.IOException;
@@ -665,6 +666,7 @@ public class Fabled extends SkillAPI {
         listen(new LingeringPotionListener(), true);
         listen(new ExperienceListener(), settings.isYieldsEnabled());
         listen(new PluginChecker(), true);
+		Bukkit.getPluginManager().registerEvents(new GlowWhileOnEmerald(), this);
 
         // Set up tasks
         if (settings.isManaEnabled()) {
