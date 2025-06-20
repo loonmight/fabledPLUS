@@ -122,6 +122,7 @@ public class ComponentRegistry {
         register(new GlideCondition());
         register(new GroundCondition());
         register(new HealthCondition());
+        register(new InputCondition());
         register(new InventoryCondition());
         register(new ItemCondition());
         register(new LightCondition());
