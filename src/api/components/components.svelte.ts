@@ -1694,6 +1694,32 @@ class ItemCondition extends FabledCondition {
 	public static override new = () => new this();
 }
 
+class InputCondition extends FabledCondition {
+	public constructor() {
+		super({
+			name:         'Input',
+			description:  'Applies child components when the target is holding input key',
+			data:         [
+				new DropdownSelect('Input', 'input', ['forward',
+					'forward',
+					'backward',
+					'right',
+					'left',
+					'jump',
+					'sneak',
+					'sprint'])
+					.setTooltip('Input key to check'),
+				new BooleanSelect('Active', 'active', true)
+					.setTooltip('Input key held down or not')
+			],
+			summaryItems: ['input', 'active']
+		});
+	}
+
+	public static override new = () => new this();
+}
+
+
 class InventoryCondition extends FabledCondition {
 	public constructor() {
 		super({
@@ -5666,6 +5692,7 @@ export const initComponents = () => {
 		GLIDE:          { name: 'Glide', component: GlideCondition },
 		GROUND:         { name: 'Ground', component: GroundCondition },
 		HEALTH:         { name: 'Health', component: HealthCondition },
+		INPUT:          { name: 'Input', component: InputCondition },
 		INVENTORY:      { name: 'Inventory', component: InventoryCondition },
 		ITEM:           { name: 'Item', component: ItemCondition },
 		LIGHT:          { name: 'Light', component: LightCondition },
