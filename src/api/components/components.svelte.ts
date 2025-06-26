@@ -174,7 +174,7 @@ class ConsumeTrigger extends FabledTrigger {
 			name:         'Consume',
 			description:  'Applies skill effects when a player consumes an item',
 			data:         [
-				...itemConditionOptions(new DropdownSelect('Material', 'material', getAnyConsumable, 'Any')
+				...itemConditionOptions(new DropdownSelect('Material', 'material', getAnyConsumable, 'Any', true)
 					.setTooltip('The type of item that the player has consumed.')
 					.requireValue('check-mat', [true]))
 			],
@@ -468,9 +468,9 @@ class LaunchTrigger extends FabledTrigger {
 		super({
 			name:         'Launch',
 			description:  'Applies skill effects when a player launches a projectile',
-			data:         [new DropdownSelect('Type', 'type', getAnyProjectiles, 'Any')
+			data:         [new DropdownSelect('Types', 'types', getAnyProjectiles, 'Any', true)
 				.setTooltip('The type of projectile that should be launched')],
-			summaryItems: ['type']
+			summaryItems: ['types']
 		});
 	}
 
@@ -664,6 +664,22 @@ class SprintTrigger extends FabledTrigger {
 				new DropdownSelect('Sprinting', 'type', ['Start Sprinting', 'Stop Sprinting', 'Both'])
 			],
 			summaryItems: ['type']
+		});
+	}
+
+	public static override new = () => new this();
+}
+
+class StripLogTrigger extends FabledTrigger {
+	public constructor() {
+		super({
+			name:         'Strip Log',
+			description:  'Applies skill effects when a player strips a block matching the given details',
+			data:         [new BlockSelect(
+				'The type of block expected to be broken',
+				'The expected data value of the block (-1 for any data value)'
+			)],
+			summaryItems: ['block']
 		});
 	}
 
@@ -1428,9 +1444,11 @@ class ClassLevelCondition extends FabledCondition {
 				new IntSelect('Min Level', 'min-level', 2)
 					.setTooltip('The minimum class level the player should be. If the player has multiple classes, this will be of their main class'),
 				new IntSelect('Max Level', 'max-level', 99)
-					.setTooltip('The maximum class level the player should be. If the player has multiple classes, this will be of their main class')
+					.setTooltip('The maximum class level the player should be. If the player has multiple classes, this will be of their main class'),
+				new StringSelect('Group', 'group', "main")
+					.setTooltip("The specified group to check the class level for. If set to main will choose the main class group.")
 			],
-			summaryItems: ['min-level', 'max-level']
+			summaryItems: ['min-level', 'max-level', 'group']
 		});
 	}
 
@@ -5630,6 +5648,7 @@ export const initComponents = () => {
 		SIGNAL:        { name: 'Signal', component: SignalTrigger },
 		SKILL_CAST:    { name: 'Skill Cast', component: SkillCastTrigger },
 		SPRINT:        { name: 'Sprint', component: SprintTrigger },
+		STRIP_LOG:    { name: 'Strip Log', component: StripLogTrigger },
 		WORLD_CHANGE:  { name: 'World Change', component: WorldChangeTrigger },
 
 		ARMOR_EQUIP: { name: 'Armor Equip', component: ArmorEquipTrigger, section: 'Item' },
