@@ -345,6 +345,44 @@ class FishingReelTrigger extends FabledTrigger {
 	public static override new = () => new this();
 }
 
+class FlagTrigger extends FabledTrigger {
+	public constructor() {
+		super({
+			name:         'Flag',
+			description:  'Applies skill effects when a flag expires on a player.',
+			data:         [
+				new StringListSelect('Flags', 'flags', ['Any'])
+					.setTooltip('The flags to check for, "Any" will trigger regardless of flag name'),
+				new IntSelect('Min Duration', 'min-duration', 0)
+					.setTooltip('The minimum duration the specified flags must be set for'),
+				new BooleanSelect('Inverse', 'inverse', false)
+					.setTooltip('Whether to trigger when NOT applying the specified flags'),
+			],
+			summaryItems: ['flags', 'min-duration', 'inverse']
+		});
+	}
+
+	public static override new = () => new this();
+}
+
+class FlagExpireTrigger extends FabledTrigger {
+	public constructor() {
+		super({
+			name:         'Flag Expire',
+			description:  'Applies skill effects when the player receives a flag from a mechanic.',
+			data:         [
+				new StringListSelect('Flags', 'flags', ['Any'])
+					.setTooltip('The flags to check for, "Any" will trigger regardless of flag name'),
+				new BooleanSelect('Inverse', 'inverse', false)
+					.setTooltip('Whether to trigger when NOT applying the specified flags'),
+			],
+			summaryItems: ['flags', 'inverse']
+		});
+	}
+
+	public static override new = () => new this();
+}
+
 class GlideTrigger extends FabledTrigger {
 	public constructor() {
 		super({
@@ -515,7 +553,7 @@ class PhysicalDamageTrigger extends FabledTrigger {
 				new DoubleSelect('Min Damage', 'dmg-min', 0)
 					.setTooltip('The minimum damage that needs to be dealt'),
 				new DoubleSelect('Max Damage', 'dmg-max', 999)
-					.setTooltip('The minimum damage that needs to be dealt')
+					.setTooltip('The maximum damage that needs to be dealt')
 			],
 			summaryItems: ['target', 'type', 'dmg-min', 'dmg-max']
 		});
@@ -740,9 +778,9 @@ class ShieldTrigger extends FabledTrigger {
 					.setTooltip('True makes children target the caster. False makes children target the attacking entity'),
 				new DropdownSelect('Type', 'type', ['Both', 'Melee', 'Projectile'], 'Both')
 					.setTooltip('The type of damage dealt'),
-				new DoubleSelect('Damage Heal', 'dmg-min', 0)
+				new DoubleSelect('Damage Blocked', 'dmg-min', 0)
 					.setTooltip('The minimum damage that needs to be blocked'),
-				new DoubleSelect('Damage Heal', 'dmg-max', 999)
+				new DoubleSelect('Damage Blocked', 'dmg-max', 999)
 					.setTooltip('The maximum damage that needs to be blocked')
 			],
 			summaryItems: ['target', 'type', 'dmg-min', 'dmg-max']
@@ -5667,7 +5705,11 @@ export const initComponents = () => {
 		PHYS_DAMAGE:  { name: 'Physical Damage', component: PhysicalDamageTrigger, section: 'Damage' },
 		TOOK_PHYS:    { name: 'Took Physical Damage', component: TookPhysicalTrigger, section: 'Damage' },
 		SKILL_DAMAGE: { name: 'Skill Damage', component: SkillDamageTrigger, section: 'Damage' },
-		TOOK_SKILL:   { name: 'Took Skill Damage', component: TookSkillTrigger, section: 'Damage' }
+		TOOK_SKILL:   { name: 'Took Skill Damage', component: TookSkillTrigger, section: 'Damage' },
+
+		FLAG:   { name: 'Flag', component: FlagTrigger, section: 'Flag' },
+		FLAG_EXPIRE:   { name: 'Flag Expire', component: FlagExpireTrigger, section: 'Flag' }
+
 	});
 	targets.set({
 		AREA:     { name: 'Area', component: AreaTarget },
