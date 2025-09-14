@@ -2,7 +2,7 @@ package studio.magemonkey.fabled.dynamic.mechanic;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
-import studio.magemonkey.fabled.api.event.CDmgEvent;
+import studio.magemonkey.fabled.api.event.CDmgDEvent;
 
 import java.util.List;
 
