@@ -27,7 +27,7 @@ public class CDmgMechanic extends MechanicComponent {
 
         for (LivingEntity target : targets) {
             target.setHealth(Math.max(0, target.getHealth() - amount));
-            Bukkit.getPluginManager().callEvent(new CDmgEvent(caster, target, amount));
+            Bukkit.getPluginManager().callEvent(new CDmgDEvent(caster, target, amount));
         }
 
         return true;
