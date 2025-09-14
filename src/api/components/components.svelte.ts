@@ -140,7 +140,7 @@ class CastTrigger extends FabledTrigger {
 class CDmgDTrigger extends FabledTrigger {
 	public constructor() {
 		super({
-			name:         'Custom Damage Done',
+			name:         'CDmgD',
 			description:  'Applies skill effects when the player deals custom damage',
 			data:         [
 				new DoubleSelect('Min amount', 'min-amount', 1)
@@ -2844,7 +2844,7 @@ class CancelEffectMechanic extends FabledMechanic {
 class CDmgMechanic extends FabledMechanic {
 	public constructor() {
 		super({
-			name:         'Custom Damage',
+			name:         'CDmg',
 			description:  'Apply custom damage',
 			data:         [
 				new AttributeSelect('Amount', 'amount', 1)
@@ -5705,7 +5705,7 @@ export const initComponents = () => {
 		BLOCK_BREAK:      { name: 'Block Break', component: BlockBreakTrigger },
 		BLOCK_PLACE:      { name: 'Block Place', component: BlockPlaceTrigger },
 		CAST:             { name: 'Cast', component: CastTrigger },
-		CDMGD:             { name: 'CDmgD', component: CDmgDTrigger },
+		CDMGD:            { name: 'CDmgD', component: CDmgDTrigger },
 		CHAT:             { name: 'Chat', component: ChatTrigger },
 		CLEANUP:          { name: 'Cleanup', component: CleanupTrigger },
 		CROUCH:           { name: 'Crouch', component: CrouchTrigger },
