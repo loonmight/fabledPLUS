@@ -42,6 +42,7 @@ public class ComponentRegistry {
         register(new AttributeChangeTrigger());
         register(new BlockBreakTrigger());
         register(new BlockPlaceTrigger());
+        register(new CDmgDTrigger());
         register(new ChatTrigger());
         register(new ClickLeftTrigger());
         register(new ClickRightTrigger());
@@ -168,6 +169,7 @@ public class ComponentRegistry {
         register(new BuffMechanic());
         register(new CancelEffectMechanic());
         register(new CancelMechanic());
+        register(new CDmgMechanic());
         register(new ChannelMechanic());
         register(new CleanseMechanic());
         register(new CommandMechanic());
