@@ -137,6 +137,22 @@ class CastTrigger extends FabledTrigger {
 	public static override new = () => new this();
 }
 
+class CDmgDTrigger extends FabledTrigger {
+	public constructor() {
+		super({
+			name:         'Custom Damage Done',
+			description:  'Applies skill effects when the player deals custom damage',
+			data:         [
+				new DoubleSelect('Min amount', 'min-amount', 1)
+					.setTooltip('The minimum amount of damage')
+			],
+			summaryItems: ['min-amount']
+		});
+	}
+
+	public static override new = () => new this();
+}
+
 class ChatTrigger extends FabledTrigger {
 	public constructor() {
 		super({
@@ -2819,6 +2835,22 @@ class CancelEffectMechanic extends FabledMechanic {
 					.setTooltip('The key used when setting up the effect')
 			],
 			summaryItems: ['effect-key']
+		}, false);
+	}
+
+	public static override new = () => new this();
+}
+
+class CDmgMechanic extends FabledMechanic {
+	public constructor() {
+		super({
+			name:         'Custom Damage',
+			description:  'Apply custom damage',
+			data:         [
+				new AttributeSelect('Amount', 'amount', 1)
+					.setTooltip('Amount of damage to deal')
+			],
+			summaryItems: ['amount']
 		}, false);
 	}
 
@@ -5673,6 +5705,7 @@ export const initComponents = () => {
 		BLOCK_BREAK:      { name: 'Block Break', component: BlockBreakTrigger },
 		BLOCK_PLACE:      { name: 'Block Place', component: BlockPlaceTrigger },
 		CAST:             { name: 'Cast', component: CastTrigger },
+		CDMGD:             { name: 'CDmgD', component: CDmgDTrigger },
 		CHAT:             { name: 'Chat', component: ChatTrigger },
 		CLEANUP:          { name: 'Cleanup', component: CleanupTrigger },
 		CROUCH:           { name: 'Crouch', component: CrouchTrigger },
@@ -5806,6 +5839,7 @@ export const initComponents = () => {
 		BLOCK:              { name: 'Block', component: BlockMechanic },
 		BUFF:               { name: 'Buff', component: BuffMechanic },
 		CANCEL:             { name: 'Cancel', component: CancelMechanic },
+		CDMG:               { name: 'CDmg', component: CDmgMechanic },
 		CHANNEL:            { name: 'Channel', component: ChannelMechanic },
 		CLEANSE:            { name: 'Cleanse', component: CleanseMechanic },
 		COMMAND:            { name: 'Command', component: CommandMechanic },
