@@ -9,7 +9,7 @@ public class CDmgDTrigger implements Trigger<CDmgDEvent> {
 
     @Override
     public String getKey() {
-        return "CDmg";
+        return "CDmgD";
     }
 
     @Override
