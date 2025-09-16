@@ -11,7 +11,7 @@
     </parent>
 
     <artifactId>fabled</artifactId>
-    <version>1.0.4-R0.63-SNAPSHOT</version>
+    <version>1.0.4-R0.64-SNAPSHOT</version>
     <name>Fabled</name>
     <description>A Minecraft Bukkit plugin aiming to provide an easy code API and skill editor for all server owners to
         create unique and fully custom classes and skills.
@@ -22,7 +22,7 @@
 
     <properties>
         <java.version>14</java.version>
-        <codex.version>1.1.1-R0.8-SNAPSHOT</codex.version>
+        <codex.version>1.1.1-R0.11-SNAPSHOT</codex.version>
 
         <delombok.dir>${project.build.directory}/javadoc-delombok</delombok.dir>
     </properties>
@@ -154,7 +154,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.5.3</version>
+                <version>3.5.4</version>
                 <configuration>
                     <systemPropertyVariables>
                         <CODEX_VERSION>${codex.version}</CODEX_VERSION>
