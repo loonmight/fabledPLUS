@@ -2847,7 +2847,7 @@ class CDmgMechanic extends FabledMechanic {
 			name:         'CDmg',
 			description:  'Apply custom damage',
 			data:         [
-				new AttributeSelect('Amount', 'amount', 1)
+				new StringSelect('Amount', 'amount', 1)
 					.setTooltip('Amount of damage to deal')
 			],
 			summaryItems: ['amount']
