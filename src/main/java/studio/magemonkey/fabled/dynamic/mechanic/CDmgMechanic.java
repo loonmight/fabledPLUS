@@ -15,17 +15,33 @@ public class CDmgMechanic extends MechanicComponent {
         return "CDmg";
     }
 
+    /**
+     * Execute with a string override for damage.
+     * This always runs the value through the filter, whether from command or settings.
+     */
     public boolean execute(LivingEntity caster,
                            int level,
                            List<LivingEntity> targets,
                            boolean force,
-                           Double overrideAmount) {
+                           String overrideAmount) {
 
-        double amount = (overrideAmount != null)
-                ? Math.max(0, overrideAmount)
-                : Math.max(0, parseValues(caster, AMOUNT, level, 0));
+        if (targets.isEmpty() && overrideAmount == null && !settings.has(AMOUNT)) {
+            return false;
+        }
 
         for (LivingEntity target : targets) {
+            // Always run through filter
+            String amountStr = (overrideAmount != null)
+                    ? filter(caster, target, overrideAmount)
+                    : filter(caster, target, settings.getString(AMOUNT));
+
+            double amount;
+            try {
+                amount = Math.max(0, Double.parseDouble(amountStr));
+            } catch (NumberFormatException e) {
+                continue; // skip invalid values
+            }
+
             target.setHealth(Math.max(0, target.getHealth() - amount));
             Bukkit.getPluginManager().callEvent(new CDmgDEvent(caster, target, amount));
         }
@@ -33,11 +49,23 @@ public class CDmgMechanic extends MechanicComponent {
         return true;
     }
 
+    /**
+     * Backwards-compatible Double override, now just forwards to the String version.
+     */
+    public boolean execute(LivingEntity caster,
+                           int level,
+                           List<LivingEntity> targets,
+                           boolean force,
+                           Double overrideAmount) {
+        return execute(caster, level, targets, force,
+                (overrideAmount != null) ? String.valueOf(overrideAmount) : null);
+    }
+
     @Override
     public boolean execute(LivingEntity caster,
                            int level,
                            List<LivingEntity> targets,
                            boolean force) {
-        return execute(caster, level, targets, force, null);
+        return execute(caster, level, targets, force, (String) null);
     }
 }
