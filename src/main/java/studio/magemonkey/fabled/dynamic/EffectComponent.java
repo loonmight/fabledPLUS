@@ -345,7 +345,7 @@ public abstract class EffectComponent {
 				}
 			}
 
-			double result = (base * (1 + casterMultSum) + casterAddSum) * (1 - targetMultSum) - targetAddSum;
+			double result = (base * (1 + casterMultSum) + casterAddSum) * (1 + targetMultSum) + targetAddSum;
 
 			String replacement = Matcher.quoteReplacement(String.valueOf(result));
 			modMatcher.appendReplacement(sb, replacement);
