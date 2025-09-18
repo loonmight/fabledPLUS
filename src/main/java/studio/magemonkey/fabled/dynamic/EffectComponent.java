@@ -258,40 +258,101 @@ public abstract class EffectComponent {
         }
     }
 
-    protected String filter(LivingEntity caster, LivingEntity target, String text) {
-        CastData data    = DynamicSkill.getCastData(caster);
-        String   pattern = "\\{[^{}]+}";
-        Pattern  pat     = Pattern.compile(pattern);
+	protected String filter(LivingEntity caster, LivingEntity target, String text) {
+		CastData data = DynamicSkill.getCastData(caster);
+		String pattern = "\\{[^{}]+}";
+		Pattern pat = Pattern.compile(pattern);
 
-        Map<String, String> snipped = new LinkedHashMap<>();
+		Map<String, String> snipped = new LinkedHashMap<>();
+		Matcher match = pat.matcher(text);
+		while (match.find()) {
+			String key = match.group().substring(1, match.group().length() - 1);
+			if (data.contains(key)) text = text.replace(match.group(), data.get(key));
+			else if (key.equals("player")) text = text.replace(match.group(), caster.getName());
+			else if (key.equals("playerUUID")) text = text.replace(match.group(), caster.getUniqueId().toString());
+			else if (key.equals("target")) text = text.replace(match.group(), target.getName());
+			else if (key.equals("targetUUID")) text = text.replace(match.group(), target.getUniqueId().toString());
+			else {
+				UUID uuid = UUID.randomUUID();
+				snipped.put(uuid.toString(), key);
+				text = text.replace(match.group(), uuid.toString());
+			}
+			match = pat.matcher(text);
+		}
 
-        Matcher match = pat.matcher(text);
-        while (match.find()) {
-            String key = match.group().substring(1, match.group().length() - 1);
-            if (data.contains(key)) text = text.replace(match.group(), data.get(key));
-            else if (key.equals("player")) text = text.replace(match.group(), caster.getName());
-            else if (key.equals("playerUUID")) text = text.replace(match.group(), caster.getUniqueId().toString());
-            else if (key.equals("target")) text = text.replace(match.group(), target.getName());
-            else if (key.equals("targetUUID")) text = text.replace(match.group(), target.getUniqueId().toString());
-            else {
-                // Replace the key with a unique identifier, so we don't loop infinitely
-                UUID uuid = UUID.randomUUID();
-                snipped.put(uuid.toString(), key);
-                text = text.replace(match.group(), uuid.toString());
-            }
+		List<Map.Entry<String, String>> list = new ArrayList<>(snipped.entrySet());
+		for (int i = list.size() - 1; i >= 0; i--) {
+			Map.Entry<String, String> entry = list.get(i);
+			text = text.replace(entry.getKey(), "{" + entry.getValue() + "}");
+		}
 
-            match = pat.matcher(text);
-        }
+		Pattern modPattern = Pattern.compile("#([0-9.]+)(?::([^:#]*))?(?::([^:#]*))?(?::([^:#]*))?(?::([^:#]*))?#");
+		Matcher modMatcher = modPattern.matcher(text);
+		StringBuffer sb = new StringBuffer();
 
-        List<Map.Entry<String, String>> list = new ArrayList<>(snipped.entrySet());
-        // Iterate in reverse order. FILO
-        for (int i = list.size() - 1; i >= 0; i--) {
-            Map.Entry<String, String> entry = list.get(i);
-            text = text.replace(entry.getKey(), "{" + entry.getValue() + "}");
-        }
+		while (modMatcher.find()) {
+			String baseStr = modMatcher.group(1);
+			String casterMultsStr = modMatcher.group(2);
+			String casterAddsStr = modMatcher.group(3);
+			String targetMultsStr = modMatcher.group(4);
+			String targetAddsStr = modMatcher.group(5);
 
-        return filterSpecialChars(text);
-    }
+			double base;
+			try {
+				base = Double.parseDouble(baseStr);
+			} catch (NumberFormatException e) {
+				base = 0;
+			}
+
+			double casterMultSum = 0.0;
+			if (casterMultsStr != null && !casterMultsStr.isEmpty()) {
+				for (String stat : casterMultsStr.split(",")) {
+					stat = stat.trim();
+					if (!stat.isEmpty()) {
+						casterMultSum += ModifierManager.getTotalModifier(caster, stat);
+					}
+				}
+			}
+
+			double casterAddSum = 0.0;
+			if (casterAddsStr != null && !casterAddsStr.isEmpty()) {
+				for (String stat : casterAddsStr.split(",")) {
+					stat = stat.trim();
+					if (!stat.isEmpty()) {
+						casterAddSum += ModifierManager.getTotalModifier(caster, stat);
+					}
+				}
+			}
+
+			double targetMultSum = 0.0;
+			if (targetMultsStr != null && !targetMultsStr.isEmpty()) {
+				for (String stat : targetMultsStr.split(",")) {
+					stat = stat.trim();
+					if (!stat.isEmpty()) {
+						targetMultSum += ModifierManager.getTotalModifier(target, stat);
+					}
+				}
+			}
+
+			double targetAddSum = 0.0;
+			if (targetAddsStr != null && !targetAddsStr.isEmpty()) {
+				for (String stat : targetAddsStr.split(",")) {
+					stat = stat.trim();
+					if (!stat.isEmpty()) {
+						targetAddSum += ModifierManager.getTotalModifier(target, stat);
+					}
+				}
+			}
+
+			double result = (base * (1 + casterMultSum) + casterAddSum) * (1 - targetMultSum) - targetAddSum;
+
+			String replacement = Matcher.quoteReplacement(String.valueOf(result));
+			modMatcher.appendReplacement(sb, replacement);
+		}
+		modMatcher.appendTail(sb);
+
+		return filterSpecialChars(sb.toString());
+	}
 
     /**
      * Executes the component
