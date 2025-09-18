@@ -3798,6 +3798,28 @@ class MineMechanic extends FabledMechanic {
 	public static override new = () => new this();
 }
 
+class ModifierMechanic extends FabledMechanic {
+	public constructor() {
+		super({
+			name:         'Modifier',
+			description:  'Apply a temporary modifier',
+			data:         [
+				new StringSelect('skillid', 'skillid', 'noskill')
+					.setTooltip('Skill applying the modifier'),
+				new StringSelect('stat', 'stat', 'nostat')
+					.setTooltip('Stat to modify'),
+				new StringSelect('amount', 'amount', '0')
+					.setTooltip('Amount of change to apply'),
+                new StringSelect('Duration', 'duration', 3)
+                    .setTooltip('Duration of the modifier in seconds')
+			],
+			summaryItems: ['skillid', 'stat', 'amount', 'duration']
+		});
+	}
+
+	public static override new = () => new this();
+}
+
 class MoneyMechanic extends FabledMechanic {
 	public constructor() {
 		super({
@@ -5872,6 +5894,7 @@ export const initComponents = () => {
 		MANA:               { name: 'Mana', component: ManaMechanic },
 		MESSAGE:            { name: 'Message', component: MessageMechanic },
 		MINE:               { name: 'Mine', component: MineMechanic },
+		MODIFIER:           { name: 'Modifier', component: ModifierMechanic },
 		MONEY:              { name: 'Money', component: MoneyMechanic },
 		MOUNT:              { name: 'Mount', component: MountMechanic },
 		MYTHICMOB_SKILL:    { name: 'MythicMob Skill', component: MythicMobSkill },
