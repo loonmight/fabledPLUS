@@ -1,7 +1,6 @@
 package studio.magemonkey.fabled.cmd;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.plugin.Plugin;
@@ -15,46 +14,28 @@ import java.util.UUID;
 
 public class CmdCDmg implements IFunction {
 
-    private static final String NOT_ENTITY   = "not-entity";
-    private static final String DEALT_DAMAGE = "dealt-damage";
-
     @Override
     public void execute(ConfigurableCommand command, Plugin plugin, CommandSender sender, String[] args) {
-        // Must have exactly 3 arguments: dealerUUID, receiverUUID, amount
         if (args.length != 3) {
             CommandManager.displayUsage(command, sender, 1);
             return;
         }
 
-        // Parse dealer UUID
-        LivingEntity dealer;
-        try {
-            UUID dealerUUID = UUID.fromString(args[0]);
-            dealer = (LivingEntity) Bukkit.getEntity(dealerUUID);
-            if (dealer == null) dealer = null; // allow console/server to act as dealer
-        } catch (IllegalArgumentException e) {
-            dealer = null; // allow console/server as dealer
-        }
+        LivingEntity source = getLivingEntity(args[0]);
+        LivingEntity target = getLivingEntity(args[1]);
 
-        // Parse receiver UUID
-        LivingEntity receiver;
-        try {
-            UUID receiverUUID = UUID.fromString(args[1]);
-            receiver = (LivingEntity) Bukkit.getEntity(receiverUUID);
-            if (receiver == null) {
-                command.sendMessage(sender, NOT_ENTITY, ChatColor.RED + "No entity found with UUID: " + args[1]);
-                return;
-            }
-        } catch (IllegalArgumentException e) {
-            command.sendMessage(sender, NOT_ENTITY, ChatColor.RED + "Invalid UUID format: " + args[1]);
-            return;
-        }
-
-        // Keep damage as raw string
-        String damageStr = args[2];
-
-        // Apply damage using CDmgMechanic (damageStr will be filtered there)
         CDmgMechanic mechanic = new CDmgMechanic();
-        mechanic.execute(dealer, 1, List.of(receiver), true, damageStr);
+        mechanic.execute(source, 1, 
+                target == null ? List.of() : List.of(target), 
+                true, args[2]);
+    }
+
+    private LivingEntity getLivingEntity(String uuidStr) {
+        try {
+            UUID uuid = UUID.fromString(uuidStr);
+            return (LivingEntity) Bukkit.getEntity(uuid);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 }
