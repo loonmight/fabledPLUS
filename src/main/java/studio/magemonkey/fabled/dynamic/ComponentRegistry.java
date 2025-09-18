@@ -205,6 +205,7 @@ public class ComponentRegistry {
         register(new ManaMechanic());
         register(new MessageMechanic());
         register(new MineMechanic());
+        register(new ModifierMechanic());
         register(new MoneyMechanic());
         register(new MountMechanic());
         register(new MythicMobSkill());
