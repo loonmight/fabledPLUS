@@ -41,6 +41,7 @@ import studio.magemonkey.fabled.api.particle.ParticleHelper;
 import studio.magemonkey.fabled.api.player.PlayerData;
 import studio.magemonkey.fabled.api.player.PlayerSkill;
 import studio.magemonkey.fabled.log.Logger;
+import studio.magemonkey.fabled.api.util.ModifierManager;
 
 import java.util.*;
 import java.util.function.Supplier;
