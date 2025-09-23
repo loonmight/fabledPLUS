@@ -15,7 +15,7 @@ import java.util.UUID;
 public class CmdModifier implements IFunction {
 
     @Override
-    public void execute(ConfigurableCommand command, Plugin plugin, CommandSender sender, String[] args) {
+    public void execute(ConfigurableCommand command, Plugin plugin, CommandSender sender, String[] args, boolean someFlag) {
         if (args.length != 6) {
             CommandManager.displayUsage(command, sender, 1);
             return;
