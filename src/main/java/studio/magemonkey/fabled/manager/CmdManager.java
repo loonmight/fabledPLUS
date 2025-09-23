@@ -229,7 +229,7 @@ public class CmdManager {
                         SenderType.ANYONE,
                         new CmdCDmg(),
                         "Applies custom damage to a target",
-                        "<source> <target> <amount>",
+                        "<source> <target> <amount> <amounttype> <skillid> <skilltype>",
                         Permissions.FORCE),
                 new ConfigurableCommand(api,
                         "modifier",
