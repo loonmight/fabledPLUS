@@ -15,8 +15,8 @@ import java.util.UUID;
 public class CmdCDmg implements IFunction {
 
     @Override
-    public void execute(ConfigurableCommand command, Plugin plugin, CommandSender sender, String[] args) {
-        if (args.length != 3) {
+    public void execute(ConfigurableCommand command, Plugin plugin, CommandSender sender, String[] args, boolean someFlag) {
+        if (args.length != 6) {
             CommandManager.displayUsage(command, sender, 1);
             return;
         }
@@ -24,10 +24,22 @@ public class CmdCDmg implements IFunction {
         LivingEntity source = getLivingEntity(args[0]);
         LivingEntity target = getLivingEntity(args[1]);
 
+        String amount     = args[2];
+        String amountType = args[3];
+        String skillId    = args[4];
+        String skillType  = args[5];
+
         CDmgMechanic mechanic = new CDmgMechanic();
-        mechanic.execute(source, 1, 
-                target == null ? List.of() : List.of(target), 
-                true, args[2]);
+        mechanic.execute(
+                source,
+                1,
+                target == null ? List.of() : List.of(target),
+                true,
+                amount,
+                amountType,
+                skillId,
+                skillType
+        );
     }
 
     private LivingEntity getLivingEntity(String uuidStr) {
