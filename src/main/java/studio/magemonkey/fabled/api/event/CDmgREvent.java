@@ -4,7 +4,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-public class CDmgDEvent extends Event {
+public class CDmgREvent extends Event {
     private static final HandlerList HANDLERS = new HandlerList();
 
     private final LivingEntity caster;
@@ -13,7 +13,7 @@ public class CDmgDEvent extends Event {
     private final String skillid;
     private final String skilltype;
 
-    public CDmgDEvent(LivingEntity caster, LivingEntity target, double amount, String skillid, String skilltype) {
+    public CDmgREvent(LivingEntity caster, LivingEntity target, double amount, String skillid, String skilltype) {
         this.caster = caster;
         this.target = target;
         this.amount = amount;
@@ -21,10 +21,12 @@ public class CDmgDEvent extends Event {
         this.skilltype = skilltype;
     }
 
+    /** The entity that caused the damage */
     public LivingEntity getCaster() {
         return caster;
     }
 
+    /** The entity that received the damage */
     public LivingEntity getTarget() {
         return target;
     }
