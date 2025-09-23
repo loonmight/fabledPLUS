@@ -137,20 +137,92 @@ class CastTrigger extends FabledTrigger {
 	public static override new = () => new this();
 }
 
-class CDmgDTrigger extends FabledTrigger {
-	public constructor() {
-		super({
-			name:         'CDmgD',
-			description:  'Applies skill effects when the player deals custom damage',
-			data:         [
-				new DoubleSelect('Min amount', 'min-amount', 1)
-					.setTooltip('The minimum amount of damage')
-			],
-			summaryItems: ['min-amount']
-		});
-	}
+class CDeathTrigger extends FabledTrigger {
+    public constructor() {
+        super({
+            name:         'CDeath',
+            description:  'Applies skill effects when the player dies from custom damage',
+            data:         [
+                new DoubleSelect('Min amount', 'min-amount', 1)
+                    .setTooltip('The minimum amount of damage'),
+                new DoubleSelect('Max amount', 'max-amount', 999)
+                    .setTooltip('The maximum amount of damage'),
+                new StringListSelect('Skill IDs', 'allowed-skillids')
+                    .setTooltip('List of skill IDs which will trigger this effect. Leave blank to allow all. Use !xxx to exclude'),
+                new StringListSelect('Skill Types', 'allowed-skilltypes')
+                    .setTooltip('List of skill types which will trigger this effect. Leave blank to allow all. Use !xxx to exclude')
+            ],
+            summaryItems: ['min-amount', 'max-amount', 'allowed-skillids', 'allowed-skilltypes']
+        });
+    }
 
-	public static override new = () => new this();
+    public static override new = () => new this();
+}
+
+class CDmgDTrigger extends FabledTrigger {
+    public constructor() {
+        super({
+            name:         'CDmgD',
+            description:  'Applies skill effects when the player deals custom damage',
+            data:         [
+                new DoubleSelect('Min amount', 'min-amount', 1)
+                    .setTooltip('The minimum amount of damage'),
+                new DoubleSelect('Max amount', 'max-amount', 999)
+                    .setTooltip('The maximum amount of damage'),
+                new StringListSelect('Skill IDs', 'allowed-skillids')
+                    .setTooltip('List of skill IDs which will trigger this effect. Leave blank to allow all. Use !xxx to exclude'),
+                new StringListSelect('Skill Types', 'allowed-skilltypes')
+                    .setTooltip('List of skill types which will trigger this effect. Leave blank to allow all. Use !xxx to exclude')
+            ],
+            summaryItems: ['min-amount', 'max-amount', 'allowed-skillids', 'allowed-skilltypes']
+        });
+    }
+
+    public static override new = () => new this();
+}
+
+class CDmgRTrigger extends FabledTrigger {
+    public constructor() {
+        super({
+            name:         'CDmgR',
+            description:  'Applies skill effects when the player receives custom damage',
+            data:         [
+                new DoubleSelect('Min amount', 'min-amount', 1)
+                    .setTooltip('The minimum amount of damage'),
+                new DoubleSelect('Max amount', 'max-amount', 999)
+                    .setTooltip('The maximum amount of damage'),
+                new StringListSelect('Skill IDs', 'allowed-skillids')
+                    .setTooltip('List of skill IDs which will trigger this effect. Leave blank to allow all. Use !xxx to exclude'),
+                new StringListSelect('Skill Types', 'allowed-skilltypes')
+                    .setTooltip('List of skill types which will trigger this effect. Leave blank to allow all. Use !xxx to exclude')
+            ],
+            summaryItems: ['min-amount', 'max-amount', 'allowed-skillids', 'allowed-skilltypes']
+        });
+    }
+
+    public static override new = () => new this();
+}
+
+class CFinalHitTrigger extends FabledTrigger {
+    public constructor() {
+        super({
+            name:         'CFinalHit',
+            description:  'Applies skill effects when the player kills something with custom damage',
+            data:         [
+                new DoubleSelect('Min amount', 'min-amount', 1)
+                    .setTooltip('The minimum amount of damage'),
+                new DoubleSelect('Max amount', 'max-amount', 999)
+                    .setTooltip('The maximum amount of damage'),
+                new StringListSelect('Skill IDs', 'allowed-skillids')
+                    .setTooltip('List of skill IDs which will trigger this effect. Leave blank to allow all. Use !xxx to exclude'),
+                new StringListSelect('Skill Types', 'allowed-skilltypes')
+                    .setTooltip('List of skill types which will trigger this effect. Leave blank to allow all. Use !xxx to exclude')
+            ],
+            summaryItems: ['min-amount', 'max-amount', 'allowed-skillids', 'allowed-skilltypes']
+        });
+    }
+
+    public static override new = () => new this();
 }
 
 class ChatTrigger extends FabledTrigger {
@@ -171,6 +243,28 @@ class ChatTrigger extends FabledTrigger {
 	}
 
 	public static override new = () => new this();
+}
+
+class CKillTrigger extends FabledTrigger {
+    public constructor() {
+        super({
+            name:         'CKill',
+            description:  'Applies skill effects when the player kills something with custom damage',
+            data:         [
+                new DoubleSelect('Min amount', 'min-amount', 1)
+                    .setTooltip('The minimum amount of damage'),
+                new DoubleSelect('Max amount', 'max-amount', 999)
+                    .setTooltip('The maximum amount of damage'),
+                new StringListSelect('Skill IDs', 'allowed-skillids')
+                    .setTooltip('List of skill IDs which will trigger this effect. Leave blank to allow all. Use !xxx to exclude'),
+                new StringListSelect('Skill Types', 'allowed-skilltypes')
+                    .setTooltip('List of skill types which will trigger this effect. Leave blank to allow all. Use !xxx to exclude')
+            ],
+            summaryItems: ['min-amount', 'max-amount', 'allowed-skillids', 'allowed-skilltypes']
+        });
+    }
+
+    public static override new = () => new this();
 }
 
 class CleanupTrigger extends FabledTrigger {
@@ -2842,19 +2936,25 @@ class CancelEffectMechanic extends FabledMechanic {
 }
 
 class CDmgMechanic extends FabledMechanic {
-	public constructor() {
-		super({
-			name:         'CDmg',
-			description:  'Apply custom damage',
-			data:         [
-				new StringSelect('Amount', 'amount', 1)
-					.setTooltip('Amount of damage to deal')
-			],
-			summaryItems: ['amount']
-		}, false);
-	}
+    public constructor() {
+        super({
+            name:        'CDmg',
+            description: 'Apply custom damage',
+            data: [
+                new StringSelect('Amount', 'amount', 1)
+                    .setTooltip('Amount of damage to deal'),
+                new DropdownSelect('Amount Type', 'amounttype', ['flat', 'percentmax', 'percentcurrent', 'percentmissing'], 'flat', false)
+                    .setTooltip('Whether the amount is flat or a percentage of target health'),
+                new StringSelect('Skill ID', 'skillid', 'skillid')
+                    .setTooltip('Skill that caused this damage'),
+                new StringSelect('Skill Type', 'skilltype', 'skilltype')
+                    .setTooltip('Type of skill')
+            ],
+            summaryItems: ['amount', 'amounttype', 'skillid', 'skilltype']
+        }, false);
+    }
 
-	public static override new = () => new this();
+    public static override new = () => new this();
 }
 
 class ChannelMechanic extends FabledMechanic {
@@ -3723,7 +3823,7 @@ class ManaMechanic extends FabledMechanic {
 			data:         [
 				new DropdownSelect('Type', 'type', ['Mana', 'Percent'], 'Mana')
 					.setTooltip('The unit to use for the amount of mana to restore/drain. Mana does a flat amount while Percent does a percentage of their max mana'),
-				new AttributeSelect('Value', 'value', 1)
+				new StringSelect('Value', 'value', 1)
 					.setTooltip('The amount of mana to restore/drain')
 			],
 			summaryItems: ['type', 'value']
@@ -5727,8 +5827,12 @@ export const initComponents = () => {
 		BLOCK_BREAK:      { name: 'Block Break', component: BlockBreakTrigger },
 		BLOCK_PLACE:      { name: 'Block Place', component: BlockPlaceTrigger },
 		CAST:             { name: 'Cast', component: CastTrigger },
+		CDEATH:           { name: 'CDeath', component: CDeathTrigger },
 		CDMGD:            { name: 'CDmgD', component: CDmgDTrigger },
+		CDMGR:            { name: 'CDmgR', component: CDmgRTrigger },
+		CFINALHIT:        { name: 'CFinalHit', component: CFinalHitTrigger },
 		CHAT:             { name: 'Chat', component: ChatTrigger },
+		CKILL:            { name: 'CKill', component: CKillTrigger },
 		CLEANUP:          { name: 'Cleanup', component: CleanupTrigger },
 		CROUCH:           { name: 'Crouch', component: CrouchTrigger },
 		DEATH:            { name: 'Death', component: DeathTrigger },
