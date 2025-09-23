@@ -3,25 +3,25 @@ package studio.magemonkey.fabled.dynamic.trigger;
 import org.bukkit.entity.LivingEntity;
 import studio.magemonkey.fabled.api.CastData;
 import studio.magemonkey.fabled.api.Settings;
-import studio.magemonkey.fabled.api.event.CDmgDEvent;
+import studio.magemonkey.fabled.api.event.CDmgREvent;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class CDmgDTrigger implements Trigger<CDmgDEvent> {
+public class CDmgRTrigger implements Trigger<CDmgREvent> {
 
     @Override
     public String getKey() {
-        return "CDmgD";
+        return "CDmgR";
     }
 
     @Override
-    public Class<CDmgDEvent> getEvent() {
-        return CDmgDEvent.class;
+    public Class<CDmgREvent> getEvent() {
+        return CDmgREvent.class;
     }
 
     @Override
-    public boolean shouldTrigger(CDmgDEvent event, int level, Settings settings) {
+    public boolean shouldTrigger(CDmgREvent event, int level, Settings settings) {
         double min = settings.getDouble("min-amount", 0);
         double max = settings.getDouble("max-amount", 999);
         double dmg = event.getAmount();
@@ -37,7 +37,7 @@ public class CDmgDTrigger implements Trigger<CDmgDEvent> {
                 .collect(Collectors.toList());
         skillIds = skillIds.stream().filter(s -> !s.startsWith("!")).collect(Collectors.toList());
 
-        if (!skillIds.isEmpty() && !skillIds.contains(event.getSkillid())
+        if ((!skillIds.isEmpty() && !skillIds.contains(event.getSkillid()))
                 || blackSkillIds.contains(event.getSkillid())) {
             return false;
         }
@@ -51,7 +51,7 @@ public class CDmgDTrigger implements Trigger<CDmgDEvent> {
                 .collect(Collectors.toList());
         skillTypes = skillTypes.stream().filter(s -> !s.startsWith("!")).collect(Collectors.toList());
 
-        if (!skillTypes.isEmpty() && !skillTypes.contains(event.getSkilltype())
+        if ((!skillTypes.isEmpty() && !skillTypes.contains(event.getSkilltype()))
                 || blackSkillTypes.contains(event.getSkilltype())) {
             return false;
         }
@@ -60,19 +60,19 @@ public class CDmgDTrigger implements Trigger<CDmgDEvent> {
     }
 
     @Override
-    public void setValues(CDmgDEvent event, CastData data) {
-        data.put("cdmgd-amount", event.getAmount());
-        data.put("cdmgd-skillid", event.getSkillid());
-        data.put("cdmgd-skilltype", event.getSkilltype());
+    public void setValues(CDmgREvent event, CastData data) {
+        data.put("cdmgr-amount", event.getAmount());
+        data.put("cdmgr-skillid", event.getSkillid());
+        data.put("cdmgr-skilltype", event.getSkilltype());
     }
 
     @Override
-    public LivingEntity getCaster(CDmgDEvent event) {
+    public LivingEntity getCaster(CDmgREvent event) {
         return event.getCaster();
     }
 
     @Override
-    public LivingEntity getTarget(CDmgDEvent event, Settings settings) {
+    public LivingEntity getTarget(CDmgREvent event, Settings settings) {
         return event.getTarget();
     }
 }
