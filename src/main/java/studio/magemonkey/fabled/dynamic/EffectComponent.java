@@ -268,11 +268,33 @@ public abstract class EffectComponent {
 		Matcher match = pat.matcher(text);
 		while (match.find()) {
 			String key = match.group().substring(1, match.group().length() - 1);
-			if (data.contains(key)) text = text.replace(match.group(), data.get(key));
-			else if (key.equals("player")) text = text.replace(match.group(), caster.getName());
-			else if (key.equals("playerUUID")) text = text.replace(match.group(), caster.getUniqueId().toString());
-			else if (key.equals("target")) text = text.replace(match.group(), target.getName());
-			else if (key.equals("targetUUID")) text = text.replace(match.group(), target.getUniqueId().toString());
+			if (data.contains(key)) {
+				text = text.replace(match.group(), data.get(key));
+			}
+			else if (key.equals("player")) {
+				text = text.replace(match.group(), caster.getName());
+			}
+			else if (key.equals("playerUUID")) {
+				text = text.replace(match.group(), caster.getUniqueId().toString());
+			}
+			else if (key.equals("playerHealth")) {
+				text = text.replace(match.group(), String.valueOf(caster.getHealth()));
+			}
+			else if (key.equals("playerMaxHealth")) {
+				text = text.replace(match.group(), String.valueOf(caster.getMaxHealth()));
+			}
+			else if (key.equals("target")) {
+				text = text.replace(match.group(), target.getName());
+			}
+			else if (key.equals("targetUUID")) {
+				text = text.replace(match.group(), target.getUniqueId().toString());
+			}
+			else if (key.equals("targetHealth")) {
+				text = text.replace(match.group(), String.valueOf(target.getHealth()));
+			}
+			else if (key.equals("targetMaxHealth")) {
+				text = text.replace(match.group(), String.valueOf(target.getMaxHealth()));
+			}
 			else {
 				UUID uuid = UUID.randomUUID();
 				snipped.put(uuid.toString(), key);
