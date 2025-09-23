@@ -42,8 +42,12 @@ public class ComponentRegistry {
         register(new AttributeChangeTrigger());
         register(new BlockBreakTrigger());
         register(new BlockPlaceTrigger());
+        register(new CDeathTrigger());
         register(new CDmgDTrigger());
+        register(new CDmgRTrigger());
+        register(new CFinalHitTrigger());
         register(new ChatTrigger());
+        register(new CKillTrigger());
         register(new ClickLeftTrigger());
         register(new ClickRightTrigger());
         register(new ConsumeTrigger());
