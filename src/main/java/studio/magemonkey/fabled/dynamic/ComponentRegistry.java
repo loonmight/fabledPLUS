@@ -43,6 +43,8 @@ public class ComponentRegistry {
         register(new BlockBreakTrigger());
         register(new BlockPlaceTrigger());
         register(new CDeathTrigger());
+        register(new CDmgATrigger());
+        register(new CDmgBTrigger());
         register(new CDmgDTrigger());
         register(new CDmgRTrigger());
         register(new CFinalHitTrigger());
