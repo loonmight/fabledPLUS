@@ -168,135 +168,124 @@ public class CDmgMechanic extends MechanicComponent {
         }
     }
 
-	private void processContributions(LivingEntity caster, LivingEntity target,
-									  DamageParseResult parsed, double actualDamage, boolean lethal) {
+    private void processContributions(LivingEntity caster, LivingEntity target,
+                                      DamageParseResult parsed, double actualDamage, boolean lethal) {
 
-		List<ModifierWithStat> allModifiers = new ArrayList<>();
+        List<ModifierWithStat> allModifiers = new ArrayList<>();
 
-		BiConsumer<Map<String, Double>, LivingEntity> collectMods = (contribMap, entity) -> {
-			for (Map.Entry<String, Double> entry : contribMap.entrySet()) {
-				String stat = entry.getKey();
-				List<ModifierManager.ModifierData.ModifierRecord> records =
-						ModifierManager.getModifierRecords(entity, stat);
-				for (ModifierManager.ModifierData.ModifierRecord rec : records) {
-					if (!rec.isExpired() && rec.getSource() != null) {
-						allModifiers.add(new ModifierWithStat(rec, stat));
-					}
-				}
-			}
-		};
+        BiConsumer<Map<String, Double>, LivingEntity> collectMods = (contribMap, entity) -> {
+            for (Map.Entry<String, Double> entry : contribMap.entrySet()) {
+                String stat = entry.getKey();
+                List<ModifierManager.ModifierData.ModifierRecord> records =
+                        ModifierManager.getModifierRecords(entity, stat);
+                for (ModifierManager.ModifierData.ModifierRecord rec : records) {
+                    if (!rec.isExpired() && rec.getSource() != null) {
+                        allModifiers.add(new ModifierWithStat(rec, stat));
+                    }
+                }
+            }
+        };
 
-		collectMods.accept(parsed.casterMultContributors, caster);
-		collectMods.accept(parsed.casterAddContributors, caster);
-		collectMods.accept(parsed.targetMultContributors, target);
-		collectMods.accept(parsed.targetAddContributors, target);
+        collectMods.accept(parsed.casterMultContributors, caster);
+        collectMods.accept(parsed.casterAddContributors, caster);
+        collectMods.accept(parsed.targetMultContributors, target);
+        collectMods.accept(parsed.targetAddContributors, target);
 
-		if (allModifiers.isEmpty()) return;
+        if (allModifiers.isEmpty()) return;
 
-		double base = parsed.base;
-		double casterMultSum = parsed.casterMultContributors.values().stream().mapToDouble(Double::doubleValue).sum();
-		double casterAddSum = parsed.casterAddContributors.values().stream().mapToDouble(Double::doubleValue).sum();
-		double targetMultSum = parsed.targetMultContributors.values().stream().mapToDouble(Double::doubleValue).sum();
-		double targetAddSum = parsed.targetAddContributors.values().stream().mapToDouble(Double::doubleValue).sum();
+        double base = parsed.base;
+        double casterMultSum = parsed.casterMultContributors.values().stream().mapToDouble(Double::doubleValue).sum();
+        double casterAddSum = parsed.casterAddContributors.values().stream().mapToDouble(Double::doubleValue).sum();
+        double targetMultSum = parsed.targetMultContributors.values().stream().mapToDouble(Double::doubleValue).sum();
+        double targetAddSum = parsed.targetAddContributors.values().stream().mapToDouble(Double::doubleValue).sum();
 
-		double innerBeforeTarget = base * (1 + casterMultSum) + casterAddSum;
+        double innerBeforeTarget = base * (1 + casterMultSum) + casterAddSum;
 
-		// Build raw contributions per modifier (positive or negative)
-		Map<ModifierWithStat, Double> rawByMod = new LinkedHashMap<>();
-		for (ModifierWithStat mws : allModifiers) {
-			double rawContribution;
-			if (parsed.casterMultContributors.containsKey(mws.stat)) {
-				rawContribution = base * mws.rec.getAmount();
-			} else if (parsed.casterAddContributors.containsKey(mws.stat)) {
-				rawContribution = mws.rec.getAmount();
-			} else if (parsed.targetMultContributors.containsKey(mws.stat)) {
-				rawContribution = innerBeforeTarget * mws.rec.getAmount();
-			} else {
-				rawContribution = mws.rec.getAmount();
-			}
-			rawByMod.put(mws, rawContribution);
-		}
+        // Build raw contributions per modifier (positive or negative)
+        Map<ModifierWithStat, Double> rawByMod = new LinkedHashMap<>();
+        for (ModifierWithStat mws : allModifiers) {
+            double rawContribution;
+            if (parsed.casterMultContributors.containsKey(mws.stat)) {
+                rawContribution = base * mws.rec.getAmount();
+            } else if (parsed.casterAddContributors.containsKey(mws.stat)) {
+                rawContribution = mws.rec.getAmount();
+            } else if (parsed.targetMultContributors.containsKey(mws.stat)) {
+                rawContribution = innerBeforeTarget * mws.rec.getAmount();
+            } else {
+                rawContribution = mws.rec.getAmount();
+            }
+            rawByMod.put(mws, rawContribution);
+        }
 
-		double sumPos = rawByMod.values().stream().filter(v -> v > 0).mapToDouble(Double::doubleValue).sum();
-		double sumNegAbs = rawByMod.values().stream().filter(v -> v < 0).mapToDouble(v -> Math.abs(v)).sum();
+        double sumPos = rawByMod.values().stream().filter(v -> v > 0).mapToDouble(Double::doubleValue).sum();
+        double sumNegAbs = rawByMod.values().stream().filter(v -> v < 0).mapToDouble(v -> Math.abs(v)).sum();
 
-		// Damage if negative modifiers weren't present
-		double potentialDamage = base + sumPos;
-		// Damage after negatives are applied (should equal base + sumPos - sumNegAbs)
-		double parsedFinal = potentialDamage - sumNegAbs;
+        double potentialDamage = base + sumPos;
+        double parsedFinal = potentialDamage - sumNegAbs;
+        double prevented = Math.max(0, potentialDamage - actualDamage);
+        if (prevented > sumNegAbs) prevented = sumNegAbs;
 
-		// How much damage was prevented by negatives (but cannot exceed total negative raw)
-		double prevented = Math.max(0, potentialDamage - actualDamage);
-		if (prevented > sumNegAbs) prevented = sumNegAbs;
+        if (!lethal) {
+            if (parsedFinal != 0 && sumPos > 0) {
+                double scale = actualDamage / parsedFinal;
+                for (Map.Entry<ModifierWithStat, Double> e : rawByMod.entrySet()) {
+                    if (e.getValue() <= 0) continue;
+                    double scaled = e.getValue() * scale;
 
-		if (!lethal) {
+                    boolean isCasterMod = parsed.casterMultContributors.containsKey(e.getKey().stat)
+                            || parsed.casterAddContributors.containsKey(e.getKey().stat);
 
-			// --- Positive contributions: scale to what was actually dealt ---
-			if (parsedFinal != 0 && sumPos > 0) {
-				double scale = actualDamage / parsedFinal;
-				for (Map.Entry<ModifierWithStat, Double> e : rawByMod.entrySet()) {
-					if (e.getValue() <= 0) continue;
-					double scaled = e.getValue() * scale;
+                    applyContributionEvent(e.getKey().rec, e.getKey().stat, caster, target, scaled, isCasterMod);
+                }
+            }
 
-					boolean isCasterMod = parsed.casterMultContributors.containsKey(e.getKey().stat)
-							|| parsed.casterAddContributors.containsKey(e.getKey().stat);
+            if (prevented > 0 && sumNegAbs > 0) {
+                for (Map.Entry<ModifierWithStat, Double> e : rawByMod.entrySet()) {
+                    double raw = e.getValue();
+                    if (raw >= 0) continue;
+                    double portion = Math.abs(raw) / sumNegAbs;
+                    double scaled = portion * prevented;
 
-					applyContributionEvent(e.getKey().rec, e.getKey().stat, caster, target, scaled, isCasterMod);
-				}
-			}
-			// If parsedFinal == 0, positives are effectively fully cancelled; we leave them uncredited (matches previous behavior).
+                    boolean isCasterMod = parsed.casterMultContributors.containsKey(e.getKey().stat)
+                            || parsed.casterAddContributors.containsKey(e.getKey().stat);
 
-			// --- Negative contributions: scale to prevented damage ---
-			if (prevented > 0 && sumNegAbs > 0) {
-				for (Map.Entry<ModifierWithStat, Double> e : rawByMod.entrySet()) {
-					double raw = e.getValue();
-					if (raw >= 0) continue;
-					double portion = Math.abs(raw) / sumNegAbs;
-					double scaled = portion * prevented;
+                    applyContributionEvent(e.getKey().rec, e.getKey().stat, caster, target, -scaled, isCasterMod);
+                }
+            }
 
-					boolean isCasterMod = parsed.casterMultContributors.containsKey(e.getKey().stat)
-							|| parsed.casterAddContributors.containsKey(e.getKey().stat);
+        } else {
+            Map<ModifierWithStat, Double> positiveRaw = new HashMap<>();
+            double rawTotal = 0;
 
-					// negative contribution -> pass as negative (applyContributionEvent treats <=0 as reduction)
-					applyContributionEvent(e.getKey().rec, e.getKey().stat, caster, target, -scaled, isCasterMod);
-				}
-			}
+            for (ModifierWithStat mws : allModifiers) {
+                double rawContribution = rawByMod.get(mws);
 
-		} else {
-			// Lethal: keep your existing proportional distribution of extra damage among positive modifiers
-			Map<ModifierWithStat, Double> positiveRaw = new HashMap<>();
-			double rawTotal = 0;
+                if (rawContribution > 0) {
+                    positiveRaw.put(mws, rawContribution);
+                    rawTotal += rawContribution;
+                }
+            }
 
-			for (ModifierWithStat mws : allModifiers) {
-				double rawContribution = rawByMod.get(mws);
+            if (rawTotal == 0) return;
 
-				if (rawContribution > 0) {
-					positiveRaw.put(mws, rawContribution);
-					rawTotal += rawContribution;
-				}
-			}
+            double actualExtra = actualDamage - base;
+            if (actualExtra <= 0) return;
 
-			if (rawTotal == 0) return;
+            for (Map.Entry<ModifierWithStat, Double> e : positiveRaw.entrySet()) {
+                double portion = e.getValue() / rawTotal;
+                double distributed = portion * actualExtra;
 
-			double actualExtra = actualDamage - base;
-			if (actualExtra <= 0) return;
+                boolean isCasterMod = parsed.casterMultContributors.containsKey(e.getKey().stat)
+                        || parsed.casterAddContributors.containsKey(e.getKey().stat);
 
-			for (Map.Entry<ModifierWithStat, Double> e : positiveRaw.entrySet()) {
-				double portion = e.getValue() / rawTotal;
-				double distributed = portion * actualExtra;
-
-				boolean isCasterMod = parsed.casterMultContributors.containsKey(e.getKey().stat)
-						|| parsed.casterAddContributors.containsKey(e.getKey().stat);
-
-				applyContributionEvent(e.getKey().rec, e.getKey().stat, caster, target, distributed, isCasterMod);
-			}
-		}
-	}
+                applyContributionEvent(e.getKey().rec, e.getKey().stat, caster, target, distributed, isCasterMod);
+            }
+        }
+    }
 
     private void applyContributionEvent(ModifierManager.ModifierData.ModifierRecord rec, String stat,
                                         LivingEntity caster, LivingEntity target,
                                         double extraDamage, boolean isCaster) {
-
 
         Player playerSource = Bukkit.getPlayer(rec.getSource());
         if (playerSource == null) return;
@@ -307,24 +296,10 @@ public class CDmgMechanic extends MechanicComponent {
             Bukkit.getPluginManager().callEvent(
                     new CDmgAEvent(playerSource, caster, target, extraDamage, skillName)
             );
-            String msg = isCaster
-                    ? "§a" + playerSource.getName() + "'s " + skillName + " " + stat +
-                    " buff helped " + caster.getName() + " deal §e" + extraDamage + "§a extra damage."
-                    : "§a" + playerSource.getName() + "'s " + skillName + " " + stat +
-                    " debuff on " + target.getName() + " helped " + caster.getName() +
-                    " deal §e" + extraDamage + "§a extra damage.";
-            Bukkit.broadcastMessage(msg);
         } else {
             Bukkit.getPluginManager().callEvent(
                     new CDmgBEvent(playerSource, target, caster, Math.abs(extraDamage), skillName)
             );
-            String msg = isCaster
-                    ? "§c" + playerSource.getName() + "'s " + skillName + " " + stat +
-                    " debuff reduced " + caster.getName() + "'s damage by §e" + Math.abs(extraDamage) + "§c."
-                    : "§c" + playerSource.getName() + "'s " + skillName + " " + stat +
-                    " buff on " + target.getName() + " reduced " + caster.getName() +
-                    "'s damage by §e" + Math.abs(extraDamage) + "§c.";
-            Bukkit.broadcastMessage(msg);
         }
     }
 
