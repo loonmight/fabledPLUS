@@ -159,6 +159,50 @@ class CDeathTrigger extends FabledTrigger {
     public static override new = () => new this();
 }
 
+class CDmgATrigger extends FabledTrigger {
+    public constructor() {
+        super({
+            name:         'CDmgA',
+            description:  'Applies skill effects when the player amplifies custom damage',
+            data:         [
+                new DoubleSelect('Min amount', 'min-amount', 1)
+                    .setTooltip('The minimum amount of damage'),
+                new DoubleSelect('Max amount', 'max-amount', 999)
+                    .setTooltip('The maximum amount of damage'),
+                new StringListSelect('Skill IDs', 'allowed-skillids')
+                    .setTooltip('List of skill IDs which will trigger this effect. Leave blank to allow all. Use !xxx to exclude'),
+                new StringListSelect('Skill Types', 'allowed-skilltypes')
+                    .setTooltip('List of skill types which will trigger this effect. Leave blank to allow all. Use !xxx to exclude')
+            ],
+            summaryItems: ['min-amount', 'max-amount', 'allowed-skillids', 'allowed-skilltypes']
+        });
+    }
+
+    public static override new = () => new this();
+}
+
+class CDmgBTrigger extends FabledTrigger {
+    public constructor() {
+        super({
+            name:         'CDmgB',
+            description:  'Applies skill effects when the player blocks custom damage',
+            data:         [
+                new DoubleSelect('Min amount', 'min-amount', 1)
+                    .setTooltip('The minimum amount of damage'),
+                new DoubleSelect('Max amount', 'max-amount', 999)
+                    .setTooltip('The maximum amount of damage'),
+                new StringListSelect('Skill IDs', 'allowed-skillids')
+                    .setTooltip('List of skill IDs which will trigger this effect. Leave blank to allow all. Use !xxx to exclude'),
+                new StringListSelect('Skill Types', 'allowed-skilltypes')
+                    .setTooltip('List of skill types which will trigger this effect. Leave blank to allow all. Use !xxx to exclude')
+            ],
+            summaryItems: ['min-amount', 'max-amount', 'allowed-skillids', 'allowed-skilltypes']
+        });
+    }
+
+    public static override new = () => new this();
+}
+
 class CDmgDTrigger extends FabledTrigger {
     public constructor() {
         super({
@@ -5828,6 +5872,8 @@ export const initComponents = () => {
 		BLOCK_PLACE:      { name: 'Block Place', component: BlockPlaceTrigger },
 		CAST:             { name: 'Cast', component: CastTrigger },
 		CDEATH:           { name: 'CDeath', component: CDeathTrigger },
+		CDMGA:            { name: 'CDmgA', component: CDmgATrigger },
+		CDMGB:            { name: 'CDmgB', component: CDmgBTrigger },
 		CDMGD:            { name: 'CDmgD', component: CDmgDTrigger },
 		CDMGR:            { name: 'CDmgR', component: CDmgRTrigger },
 		CFINALHIT:        { name: 'CFinalHit', component: CFinalHitTrigger },
