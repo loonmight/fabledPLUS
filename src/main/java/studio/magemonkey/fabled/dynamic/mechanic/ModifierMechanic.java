@@ -1,9 +1,11 @@
 package studio.magemonkey.fabled.dynamic.mechanic;
 
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import studio.magemonkey.fabled.api.util.ModifierManager;
 
 import java.util.List;
+import java.util.UUID;
 
 public class ModifierMechanic extends MechanicComponent {
 
@@ -60,7 +62,8 @@ public class ModifierMechanic extends MechanicComponent {
             double duration = parseDoubleOrDefault(filter(caster, target, durationStr), 3.0);
             int ticks = (int) (duration * 20);
 
-            ModifierManager.addModifier(target, stat, amount, ticks, skillId);
+			UUID source = (caster instanceof Player) ? caster.getUniqueId() : null;
+			ModifierManager.addModifier(target, stat, amount, ticks, skillId, source);
         }
 
         return true;
