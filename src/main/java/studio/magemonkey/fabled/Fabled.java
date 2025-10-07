@@ -673,7 +673,6 @@ public class Fabled extends SkillAPI {
         listen(new PluginChecker(), true);
 		Bukkit.getPluginManager().registerEvents(new GlowWhileOnEmerald(), this);
 		InputCondition.startInputChecking(this);
-		Bukkit.getPluginManager().registerEvents(new ModifierManager.DebugListener(), this);
 		ModifierManager.startCleanup(this);
 
         // Set up tasks
