@@ -81,6 +81,7 @@ import studio.magemonkey.fabled.task.SaveTask;
 import studio.magemonkey.fabled.thread.MainThread;
 import studio.loonmight.emeraldglow.GlowWhileOnEmerald;
 import studio.magemonkey.fabled.dynamic.condition.InputCondition;
+import studio.magemonkey.fabled.dynamic.trigger.InputTrigger;
 import studio.magemonkey.fabled.api.util.ModifierManager;
 
 import java.io.File;
@@ -672,7 +673,8 @@ public class Fabled extends SkillAPI {
         listen(new ExperienceListener(), settings.isYieldsEnabled());
         listen(new PluginChecker(), true);
 		Bukkit.getPluginManager().registerEvents(new GlowWhileOnEmerald(), this);
-		InputCondition.startInputChecking(this);
+		Condition.startInputChecking(this);
+		InputTrigger.startTracking(this);
 		ModifierManager.startCleanup(this);
 
         // Set up tasks
