@@ -608,6 +608,35 @@ class InitializeTrigger extends FabledTrigger {
 	public static override new = () => new this();
 }
 
+class InputTrigger extends FabledTrigger {
+	public constructor() {
+		super({
+			name:        'Input',
+			description: 'Applies skill effects when a player presses or releases an input key',
+			data: [
+				new DropdownSelect('Input Key', 'input', [
+					'forward',
+					'backward',
+					'right',
+					'left',
+					'jump',
+					'sneak',
+					'sprint'
+				]).setTooltip('Which input key to react to'),
+
+				new DropdownSelect('Type', 'type', [
+					'Press',
+					'Release',
+					'Both'
+				]).setTooltip('Whether to trigger on key press, key release, or both')
+			],
+			summaryItems: ['input', 'type']
+		});
+	}
+
+	public static override new = () => new this();
+}
+
 class ItemSwapTrigger extends FabledTrigger {
 	public constructor() {
 		super({
@@ -5889,6 +5918,7 @@ export const initComponents = () => {
 		HARVEST:          { name: 'Harvest', component: HarvestTrigger },
 		HEAL:             { name: 'Heal', component: HealTrigger },
 		INIT:             { name: 'Initialize', component: InitializeTrigger },
+		INPUT:            { name: 'Input', component: InputTrigger },
 		JUMP:             { name: 'Jump', component: JumpTrigger },
 		KILL:             { name: 'Kill', component: KillTrigger },
 		LAND:             { name: 'Land', component: LandTrigger },
