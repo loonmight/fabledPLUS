@@ -1,0 +1,322 @@
+package studio.magemonkey.fabled.dynamic.mechanic;
+
+import org.bukkit.Bukkit;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import studio.magemonkey.fabled.api.event.*;
+import studio.magemonkey.fabled.api.util.ModifierManager;
+
+import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class CHealMechanic extends MechanicComponent {
+
+    private static final String AMOUNT = "amount";
+    private static final String AMOUNTTYPE = "amounttype";
+    private static final String SKILLID = "skillid";
+    private static final String SKILLTYPE = "skilltype";
+
+    @Override
+    public String getKey() {
+        return "CHeal";
+    }
+
+    @Override
+    public boolean execute(LivingEntity caster, int level, List<LivingEntity> targets, boolean force) {
+        return execute(caster, level, targets, force, null, null, null, null);
+    }
+
+    public boolean execute(LivingEntity caster, int level, List<LivingEntity> targets, boolean force,
+                           String amountOverride, String amountTypeOverride,
+                           String skillIdOverride, String skillTypeOverride) {
+
+        if (targets == null || targets.isEmpty()) return false;
+
+        for (LivingEntity target : targets) {
+            // Filter fields
+            String rawAmount = filter(caster, target,
+                    amountOverride != null ? amountOverride :
+                            settings.has(AMOUNT) ? settings.getString(AMOUNT) : "0");
+
+            String skillId = filter(caster, target,
+                    skillIdOverride != null ? skillIdOverride :
+                            settings.has(SKILLID) ? settings.getString(SKILLID) : "skillid");
+
+            String skillType = filter(caster, target,
+                    skillTypeOverride != null ? skillTypeOverride :
+                            settings.has(SKILLTYPE) ? settings.getString(SKILLTYPE) : "skilltype");
+
+            // Parse heal amount
+            DamageParseResult parsed = parseHealBlock(caster, target, rawAmount);
+            double finalHeal = parsed.finalValue;
+
+            // Apply flat/percent type
+            String amountType = filter(caster, target,
+                    amountTypeOverride != null ? amountTypeOverride :
+                            settings.has(AMOUNTTYPE) ? settings.getString(AMOUNTTYPE) : "flat");
+
+            if (target != null) {
+                switch (amountType) {
+                    case "percentmax" -> finalHeal = target.getMaxHealth() * finalHeal;
+                    case "percentcurrent" -> finalHeal = target.getHealth() * finalHeal;
+                    case "percentmissing" -> finalHeal = (target.getMaxHealth() - target.getHealth()) * finalHeal;
+                }
+            }
+
+            // --- Apply healing, respecting max health ---
+            double actualHeal;
+            boolean fullHeal = false;
+
+            if (target != null) {
+                double targetHealth = target.getHealth();
+                double maxHealth = target.getMaxHealth();
+                double healCap = maxHealth - targetHealth;
+
+                if (healCap <= 0) {
+                    actualHeal = 0;
+                    fullHeal = true;
+                } else if (finalHeal >= healCap) {
+                    actualHeal = healCap;
+                    target.setHealth(maxHealth);
+                    fullHeal = true;
+                } else {
+                    actualHeal = Math.max(0, finalHeal);
+                    target.setHealth(targetHealth + actualHeal);
+                }
+            } else {
+                actualHeal = Math.max(0, finalHeal);
+            }
+
+            // --- Calculate extra healing (beyond base) ---
+            double actualExtra = Math.max(0, actualHeal - parsed.base);
+
+            // --- Contribution credit broadcast ---
+            if (caster != null && target != null) {
+                processContributions(caster, target, parsed, actualHeal, actualExtra, fullHeal);
+            }
+
+            // --- Fire heal events ---
+            Bukkit.getPluginManager().callEvent(
+                    new CHealDEvent(caster, target, actualHeal, skillId, skillType)
+            );
+            Bukkit.getPluginManager().callEvent(
+                    new CHealREvent(target, caster, actualHeal, skillId, skillType)
+            );
+        }
+
+        return true;
+    }
+
+    // ===================== Contribution Helpers =====================
+
+    private static class ModifierWithStat {
+        final ModifierManager.ModifierData.ModifierRecord rec;
+        final String stat;
+
+        ModifierWithStat(ModifierManager.ModifierData.ModifierRecord rec, String stat) {
+            this.rec = rec;
+            this.stat = stat;
+        }
+    }
+
+	private void processContributions(LivingEntity caster, LivingEntity target,
+									  DamageParseResult parsed, double actualHeal,
+									  double actualExtra, boolean fullHeal) {
+
+		List<ModifierWithStat> allModifiers = new ArrayList<>();
+
+		BiConsumer<Map<String, Double>, LivingEntity> collectMods = (contribMap, entity) -> {
+			for (Map.Entry<String, Double> entry : contribMap.entrySet()) {
+				String stat = entry.getKey();
+				List<ModifierManager.ModifierData.ModifierRecord> records =
+						ModifierManager.getModifierRecords(entity, stat);
+				for (ModifierManager.ModifierData.ModifierRecord rec : records) {
+					if (!rec.isExpired() && rec.getSource() != null) {
+						allModifiers.add(new ModifierWithStat(rec, stat));
+					}
+				}
+			}
+		};
+
+		collectMods.accept(parsed.casterMultContributors, caster);
+		collectMods.accept(parsed.casterAddContributors, caster);
+		collectMods.accept(parsed.targetMultContributors, target);
+		collectMods.accept(parsed.targetAddContributors, target);
+
+		if (allModifiers.isEmpty()) return;
+
+		double base = parsed.base;
+		double casterMultSum = parsed.casterMultContributors.values().stream().mapToDouble(Double::doubleValue).sum();
+		double casterAddSum = parsed.casterAddContributors.values().stream().mapToDouble(Double::doubleValue).sum();
+		double targetMultSum = parsed.targetMultContributors.values().stream().mapToDouble(Double::doubleValue).sum();
+		double targetAddSum = parsed.targetAddContributors.values().stream().mapToDouble(Double::doubleValue).sum();
+
+		double innerBeforeTarget = base * (1 + casterMultSum) + casterAddSum;
+
+		// Build raw contributions per modifier (positive or negative)
+		Map<ModifierWithStat, Double> rawByMod = new LinkedHashMap<>();
+		for (ModifierWithStat mws : allModifiers) {
+			double rawContribution;
+			if (parsed.casterMultContributors.containsKey(mws.stat)) {
+				rawContribution = base * mws.rec.getAmount();
+			} else if (parsed.casterAddContributors.containsKey(mws.stat)) {
+				rawContribution = mws.rec.getAmount();
+			} else if (parsed.targetMultContributors.containsKey(mws.stat)) {
+				rawContribution = innerBeforeTarget * mws.rec.getAmount();
+			} else {
+				rawContribution = mws.rec.getAmount();
+			}
+			rawByMod.put(mws, rawContribution);
+		}
+
+		double sumPos = rawByMod.values().stream().filter(v -> v > 0).mapToDouble(Double::doubleValue).sum();
+		double sumNegAbs = rawByMod.values().stream().filter(v -> v < 0).mapToDouble(v -> Math.abs(v)).sum();
+
+		double potentialHeal = base + sumPos;
+		double parsedFinal = potentialHeal - sumNegAbs;
+		double prevented = Math.max(0, potentialHeal - actualHeal);
+		if (prevented > sumNegAbs) prevented = sumNegAbs;
+
+		// ================= Positive Healing Boosts + Negative Reductions =================
+		if (!fullHeal) {
+			// Non-full: scale positives with actualHeal / parsedFinal (same as CDmg non-lethal)
+			if (parsedFinal != 0 && sumPos > 0) {
+				double scale = actualHeal / parsedFinal;
+				for (Map.Entry<ModifierWithStat, Double> e : rawByMod.entrySet()) {
+					if (e.getValue() <= 0) continue;
+					double scaled = e.getValue() * scale;
+
+					boolean isCasterMod = parsed.casterMultContributors.containsKey(e.getKey().stat)
+							|| parsed.casterAddContributors.containsKey(e.getKey().stat);
+
+					applyContributionEvent(e.getKey().rec, e.getKey().stat, caster, target, scaled, isCasterMod);
+				}
+			}
+
+			// Negative Healing Reduction (Blocking)
+			if (prevented > 0 && sumNegAbs > 0) {
+				for (Map.Entry<ModifierWithStat, Double> e : rawByMod.entrySet()) {
+					double raw = e.getValue();
+					if (raw >= 0) continue;
+
+					double portion = Math.abs(raw) / sumNegAbs;
+					double scaled = portion * prevented;
+
+					boolean isCasterMod = parsed.casterMultContributors.containsKey(e.getKey().stat)
+							|| parsed.casterAddContributors.containsKey(e.getKey().stat);
+
+					applyContributionEvent(e.getKey().rec, e.getKey().stat, caster, target, -scaled, isCasterMod);
+				}
+			}
+
+		} else {
+			// ================= Full-Heal: Distribute actualExtra among positives =================
+			Map<ModifierWithStat, Double> positiveRaw = new HashMap<>();
+			double rawTotal = 0;
+
+			for (ModifierWithStat mws : allModifiers) {
+				double rawContribution = rawByMod.get(mws);
+				if (rawContribution > 0) {
+					positiveRaw.put(mws, rawContribution);
+					rawTotal += rawContribution;
+				}
+			}
+
+			if (rawTotal == 0 || actualExtra <= 0) return;
+
+			for (Map.Entry<ModifierWithStat, Double> e : positiveRaw.entrySet()) {
+				double portion = e.getValue() / rawTotal;
+				double distributed = portion * actualExtra;
+
+				boolean isCasterMod = parsed.casterMultContributors.containsKey(e.getKey().stat)
+						|| parsed.casterAddContributors.containsKey(e.getKey().stat);
+
+				applyContributionEvent(e.getKey().rec, e.getKey().stat, caster, target, distributed, isCasterMod);
+			}
+		}
+	}
+
+    private void applyContributionEvent(ModifierManager.ModifierData.ModifierRecord rec, String stat,
+                                        LivingEntity caster, LivingEntity target,
+                                        double amount, boolean isCaster) {
+
+        Player playerSource = Bukkit.getPlayer(rec.getSource());
+        if (playerSource == null) return;
+
+        String skillName = rec.getSkillId();
+
+        if (amount > 0) {
+            // Modifier boosted healing
+            Bukkit.getPluginManager().callEvent(
+                    new CHealAEvent(playerSource, caster, target, amount, skillName)
+            );
+        } else if (amount < 0) {
+            // Modifier reduced healing (blocked)
+            Bukkit.getPluginManager().callEvent(
+                    new CHealBEvent(playerSource, caster, target, Math.abs(amount), skillName)
+            );
+        }
+    }
+
+    // ===================== Healing Parsing =====================
+
+    private static class DamageParseResult {
+        double base;
+        double finalValue;
+        Map<String, Double> casterMultContributors = new HashMap<>();
+        Map<String, Double> casterAddContributors = new HashMap<>();
+        Map<String, Double> targetMultContributors = new HashMap<>();
+        Map<String, Double> targetAddContributors = new HashMap<>();
+
+        DamageParseResult(double base) {
+            this.base = base;
+        }
+    }
+
+    private DamageParseResult parseHealBlock(LivingEntity caster, LivingEntity target, String block) {
+        Pattern modPattern = Pattern.compile("~([0-9.]+)(?::([^:~]*))?(?::([^:~]*))?(?::([^:~]*))?(?::([^:~]*))?~");
+        Matcher modMatcher = modPattern.matcher(block);
+
+        if (modMatcher.matches()) {
+            double base;
+            try { base = Double.parseDouble(modMatcher.group(1)); }
+            catch (NumberFormatException e) { base = 0.0; }
+
+            String casterMultsStr = modMatcher.group(2);
+            String casterAddsStr = modMatcher.group(3);
+            String targetMultsStr = modMatcher.group(4);
+            String targetAddsStr = modMatcher.group(5);
+
+            DamageParseResult result = new DamageParseResult(base);
+
+            result.casterMultContributors = parseStatList(caster, casterMultsStr);
+            result.casterAddContributors = parseStatList(caster, casterAddsStr);
+            result.targetMultContributors = parseStatList(target, targetMultsStr);
+            result.targetAddContributors = parseStatList(target, targetAddsStr);
+
+            double casterMultSum = result.casterMultContributors.values().stream().mapToDouble(Double::doubleValue).sum();
+            double casterAddSum = result.casterAddContributors.values().stream().mapToDouble(Double::doubleValue).sum();
+            double targetMultSum = result.targetMultContributors.values().stream().mapToDouble(Double::doubleValue).sum();
+            double targetAddSum = result.targetAddContributors.values().stream().mapToDouble(Double::doubleValue).sum();
+
+            result.finalValue = (base * (1 + casterMultSum) + casterAddSum) * (1 + targetMultSum) + targetAddSum;
+            return result;
+        }
+
+        return new DamageParseResult(0.0);
+    }
+
+    private Map<String, Double> parseStatList(LivingEntity entity, String list) {
+        Map<String, Double> result = new HashMap<>();
+        if (list == null || list.isEmpty()) return result;
+        for (String stat : list.split(",")) {
+            stat = stat.trim();
+            if (!stat.isEmpty()) {
+                result.put(stat, ModifierManager.getTotalModifier(entity, stat));
+            }
+        }
+        return result;
+    }
+}
