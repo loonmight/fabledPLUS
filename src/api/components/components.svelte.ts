@@ -289,6 +289,94 @@ class ChatTrigger extends FabledTrigger {
 	public static override new = () => new this();
 }
 
+class CHealATrigger extends FabledTrigger {
+    public constructor() {
+        super({
+            name:         'CHealA',
+            description:  'Applies skill effects when the player amplifies custom healing',
+            data:         [
+                new DoubleSelect('Min amount', 'min-amount', 1)
+                    .setTooltip('The minimum amount of healing'),
+                new DoubleSelect('Max amount', 'max-amount', 999)
+                    .setTooltip('The maximum amount of healing'),
+                new StringListSelect('Skill IDs', 'allowed-skillids')
+                    .setTooltip('List of skill IDs which will trigger this effect. Leave blank to allow all. Use !xxx to exclude'),
+                new StringListSelect('Skill Types', 'allowed-skilltypes')
+                    .setTooltip('List of skill types which will trigger this effect. Leave blank to allow all. Use !xxx to exclude')
+            ],
+            summaryItems: ['min-amount', 'max-amount', 'allowed-skillids', 'allowed-skilltypes']
+        });
+    }
+
+    public static override new = () => new this();
+}
+
+class CHealBTrigger extends FabledTrigger {
+    public constructor() {
+        super({
+            name:         'CHealB',
+            description:  'Applies skill effects when the player blocks custom healing',
+            data:         [
+                new DoubleSelect('Min amount', 'min-amount', 1)
+                    .setTooltip('The minimum amount of healing'),
+                new DoubleSelect('Max amount', 'max-amount', 999)
+                    .setTooltip('The maximum amount of healing'),
+                new StringListSelect('Skill IDs', 'allowed-skillids')
+                    .setTooltip('List of skill IDs which will trigger this effect. Leave blank to allow all. Use !xxx to exclude'),
+                new StringListSelect('Skill Types', 'allowed-skilltypes')
+                    .setTooltip('List of skill types which will trigger this effect. Leave blank to allow all. Use !xxx to exclude')
+            ],
+            summaryItems: ['min-amount', 'max-amount', 'allowed-skillids', 'allowed-skilltypes']
+        });
+    }
+
+    public static override new = () => new this();
+}
+
+class CHealDTrigger extends FabledTrigger {
+    public constructor() {
+        super({
+            name:         'CHealD',
+            description:  'Applies skill effects when the player deals custom healing',
+            data:         [
+                new DoubleSelect('Min amount', 'min-amount', 1)
+                    .setTooltip('The minimum amount of healing'),
+                new DoubleSelect('Max amount', 'max-amount', 999)
+                    .setTooltip('The maximum amount of healing'),
+                new StringListSelect('Skill IDs', 'allowed-skillids')
+                    .setTooltip('List of skill IDs which will trigger this effect. Leave blank to allow all. Use !xxx to exclude'),
+                new StringListSelect('Skill Types', 'allowed-skilltypes')
+                    .setTooltip('List of skill types which will trigger this effect. Leave blank to allow all. Use !xxx to exclude')
+            ],
+            summaryItems: ['min-amount', 'max-amount', 'allowed-skillids', 'allowed-skilltypes']
+        });
+    }
+
+    public static override new = () => new this();
+}
+
+class CHealRTrigger extends FabledTrigger {
+    public constructor() {
+        super({
+            name:         'CHealR',
+            description:  'Applies skill effects when the player receives custom healing',
+            data:         [
+                new DoubleSelect('Min amount', 'min-amount', 1)
+                    .setTooltip('The minimum amount of healing'),
+                new DoubleSelect('Max amount', 'max-amount', 999)
+                    .setTooltip('The maximum amount of healing'),
+                new StringListSelect('Skill IDs', 'allowed-skillids')
+                    .setTooltip('List of skill IDs which will trigger this effect. Leave blank to allow all. Use !xxx to exclude'),
+                new StringListSelect('Skill Types', 'allowed-skilltypes')
+                    .setTooltip('List of skill types which will trigger this effect. Leave blank to allow all. Use !xxx to exclude')
+            ],
+            summaryItems: ['min-amount', 'max-amount', 'allowed-skillids', 'allowed-skilltypes']
+        });
+    }
+
+    public static override new = () => new this();
+}
+
 class CKillTrigger extends FabledTrigger {
     public constructor() {
         super({
@@ -612,7 +700,7 @@ class InputTrigger extends FabledTrigger {
 	public constructor() {
 		super({
 			name:        'Input',
-			description: 'Applies skill effects when a player presses or releases an input key',
+			description: 'Applies skill effects when a player presses or releases a movement input key',
 			data: [
 				new DropdownSelect('Input Key', 'input', [
 					'forward',
@@ -3046,6 +3134,28 @@ class ChannelMechanic extends FabledMechanic {
 	}
 
 	public static override new = () => new this();
+}
+
+class CHealMechanic extends FabledMechanic {
+    public constructor() {
+        super({
+            name:        'CHeal',
+            description: 'Apply custom healing',
+            data: [
+                new StringSelect('Amount', 'amount', 1)
+                    .setTooltip('Amount of heal to deal'),
+                new DropdownSelect('Amount Type', 'amounttype', ['flat', 'percentmax', 'percentcurrent', 'percentmissing'], 'flat', false)
+                    .setTooltip('Whether the amount is flat or a percentage of target health'),
+                new StringSelect('Skill ID', 'skillid', 'skillid')
+                    .setTooltip('Skill that caused this damage'),
+                new StringSelect('Skill Type', 'skilltype', 'skilltype')
+                    .setTooltip('Type of skill')
+            ],
+            summaryItems: ['amount', 'amounttype', 'skillid', 'skilltype']
+        }, false);
+    }
+
+    public static override new = () => new this();
 }
 
 class CleanseMechanic extends FabledMechanic {
@@ -5907,6 +6017,10 @@ export const initComponents = () => {
 		CDMGR:            { name: 'CDmgR', component: CDmgRTrigger },
 		CFINALHIT:        { name: 'CFinalHit', component: CFinalHitTrigger },
 		CHAT:             { name: 'Chat', component: ChatTrigger },
+		CHEALA:           { name: 'CHealA', component: CHealATrigger },
+		CHEALB:           { name: 'CHealB', component: CHealBTrigger },
+		CHEALD:           { name: 'CHealD', component: CHealDTrigger },
+		CHEALR:           { name: 'CHealR', component: CHealRTrigger },
 		CKILL:            { name: 'CKill', component: CKillTrigger },
 		CLEANUP:          { name: 'Cleanup', component: CleanupTrigger },
 		CROUCH:           { name: 'Crouch', component: CrouchTrigger },
@@ -6043,6 +6157,7 @@ export const initComponents = () => {
 		CANCEL:             { name: 'Cancel', component: CancelMechanic },
 		CDMG:               { name: 'CDmg', component: CDmgMechanic },
 		CHANNEL:            { name: 'Channel', component: ChannelMechanic },
+		CHEAL:              { name: 'CHeal', component: CHealMechanic },
 		CLEANSE:            { name: 'Cleanse', component: CleanseMechanic },
 		COMMAND:            { name: 'Command', component: CommandMechanic },
 		COOLDOWN:           { name: 'Cooldown', component: CooldownMechanic },
