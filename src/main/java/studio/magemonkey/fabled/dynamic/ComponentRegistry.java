@@ -49,6 +49,10 @@ public class ComponentRegistry {
         register(new CDmgRTrigger());
         register(new CFinalHitTrigger());
         register(new ChatTrigger());
+        register(new CHealATrigger());
+        register(new CHealBTrigger());
+        register(new CHealDTrigger());
+        register(new CHealRTrigger());
         register(new CKillTrigger());
         register(new ClickLeftTrigger());
         register(new ClickRightTrigger());
@@ -178,6 +182,7 @@ public class ComponentRegistry {
         register(new CancelMechanic());
         register(new CDmgMechanic());
         register(new ChannelMechanic());
+        register(new CHealMechanic());
         register(new CleanseMechanic());
         register(new CommandMechanic());
         register(new CooldownMechanic());
