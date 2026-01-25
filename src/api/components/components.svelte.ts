@@ -953,7 +953,7 @@ class SkillDowngradeTrigger extends FabledTrigger {
 		super({
 			name:        'Skill Downgrade',
 			description: 'Applies skill effects when a player loses a level in a skill. The placeholders `api-refund`, `api-skill`, and `api-level` provide details about the downgrade.',
-			keywords:    'skill, downgrade, level down, player, API, refund, skill name, level',
+			keywords:    'skill, downgrade, level down, player, API, refund, skill name, level'
 		});
 	}
 
@@ -996,7 +996,7 @@ class SkillDamageTrigger extends FabledTrigger {
 	public constructor() {
 		super({
 			name:         'Skill Damage',
-			description:  'Applies skill effects when a player deals damage with a skill',
+			description:  'Applies skill effects when a player deals damage with a skill. <code>api-damage</code> is the damage the target took',
 			data:         [
 				new BooleanSelect('Target Caster', 'target', true)
 					.setTooltip('True makes children target the caster. False makes children target the damaged entity'),
@@ -5720,6 +5720,8 @@ class ValuePlaceholderMechanic extends FabledMechanic {
 					.setTooltip('The type of value to store. Number values require numeric placeholders. String values can be used in messages or commands'),
 				new StringSelect('Placeholder', 'placeholder', '{value}')
 					.setTooltip('The placeholder string to use. Can contain multiple placeholders if using the String type'),
+				new BooleanSelect('Evaluate', 'evaluate', false)
+					.setTooltip('If true, the placeholder will be evaluated before being stored. If <code>false</code>, the raw placeholder string will be stored, effectively creating a pass-by-reference system. <code>true</code> is essentially pass-by-value.'),
 				new BooleanSelect('Save', 'save', false)
 					.setTooltip('If true, save the key value to persistent value. Persistent value is not lost when the player leaves the server and is stored separately on each account')
 
