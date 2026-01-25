@@ -21,6 +21,7 @@ public class ValuePlaceholderMechanic extends MechanicComponent {
     private static final String KEY         = "key";
     private static final String TYPE        = "type";
     private static final String PLACEHOLDER = "placeholder";
+    private static final String EVALUATE    = "evaluate";
     private static final String SAVE        = "save";
 
     @Override
@@ -28,51 +29,38 @@ public class ValuePlaceholderMechanic extends MechanicComponent {
         return "value placeholder";
     }
 
-    /**
-     * Executes the component
-     *
-     * @param caster  caster of the skill
-     * @param level   level of the skill
-     * @param targets targets to apply to
-     * @param force
-     * @return true if applied to something, false otherwise
-     */
     @Override
     public boolean execute(LivingEntity caster, int level, List<LivingEntity> targets, boolean force) {
-        if (targets.isEmpty() || !settings.has(PLACEHOLDER)) {
-            return false;
+        final String  key         = settings.getString(KEY);
+        final String  placeholder = settings.getString(PLACEHOLDER);
+        final String  type        = settings.getString(TYPE).toUpperCase(Locale.US);
+        final boolean evaluate    = settings.getBool(EVALUATE, false);
+
+        String value = placeholder;
+        if (PluginChecker.isPlaceholderAPIActive() && targets.get(0) instanceof Player) {
+            value = PlaceholderAPIHook.format(placeholder, (Player) targets.get(0));
         }
 
-        final String key  = settings.getString(KEY);
-        final String type = settings.getString(TYPE).toUpperCase(Locale.US);
-
-        for (LivingEntity target : targets) {
-            String placeholder = filter(caster, target, settings.getString(PLACEHOLDER));
-            String value = placeholder;
-
-            if (PluginChecker.isPlaceholderAPIActive() && target instanceof Player) {
-                value = PlaceholderAPIHook.format(placeholder, (Player) target);
-            }
-
-            switch (type.charAt(0)) {
-                case 'S': // STRING
-                    DynamicSkill.getCastData(caster).put(key, value);
-                    break;
-                default: // NUMBER
-                    try {
-                        DynamicSkill.getCastData(caster).put(key, Double.parseDouble(value));
-                    } catch (final Exception ex) {
-                        Logger.invalid(
-                                placeholder + " is not a valid numeric placeholder - PlaceholderAPI returned " + value);
-                        return false;
-                    }
-            }
-
-            if (settings.getBool(SAVE, false)) {
-                Fabled.getData((OfflinePlayer) caster)
-                        .setPersistentData(key, DynamicSkill.getCastData(caster).getRaw(key));
-            }
+        if (evaluate) {
+            value = filter(caster, targets.get(0), value);
         }
+
+        switch (type.charAt(0)) {
+            case 'S': // STRING
+                DynamicSkill.getCastData(caster).put(key, value);
+                break;
+            default: // NUMBER
+                try {
+                    DynamicSkill.getCastData(caster).put(key, Double.parseDouble(value));
+                } catch (final Exception ex) {
+                    Logger.invalid(
+                            placeholder + " is not a valid numeric placeholder - PlaceholderAPI returned " + value);
+                    return false;
+                }
+        }
+        if (settings.getBool(SAVE, false))
+            Fabled.getData((OfflinePlayer) caster)
+                    .setPersistentData(key, DynamicSkill.getCastData(caster).getRaw(key));
         return true;
     }
 }
