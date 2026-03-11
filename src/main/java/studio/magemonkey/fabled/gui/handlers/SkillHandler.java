@@ -4,7 +4,7 @@
  * <p>
  * The MIT License (MIT)
  * <p>
- * Copyright (c) 2024 MageMonkeyStudio
+ * © 2026 VoidEdge
  * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,10 +34,15 @@ public class SkillHandler extends GUIHolder<Skill> {
     @Override
     public void onClick(Skill type, int slot, boolean left, boolean shift) {
         if (left) {
-            if (player.upgradeSkill(type)) setPage(page);
-        } else if (Fabled.getSettings().isAllowDowngrade() && player.getSkillLevel(type.getKey()) > 0
-                && player.downgradeSkill(type)) {
-            setPage(page);
+            boolean upgraded = shift ? player.upgradeSkill(type, 10) : player.upgradeSkill(type);
+            if (upgraded) setPage(page);
+        } else {
+            if (shift) {
+                if (player.upgradeSkillToMax(type)) setPage(page);
+            } else if (Fabled.getSettings().isAllowDowngrade() && player.getSkillLevel(type.getKey()) > 0
+                    && player.downgradeSkill(type)) {
+                setPage(page);
+            }
         }
     }
 

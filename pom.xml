@@ -7,17 +7,17 @@
     <parent>
         <groupId>studio.magemonkey</groupId>
         <artifactId>magemonkey-parent</artifactId>
-        <version>1.21.11-R1</version>
+        <version>1.21.11-R2</version>
     </parent>
 
     <artifactId>fabled</artifactId>
-    <version>1.0.4-R0.86-SNAPSHOT</version>
+    <version>1.0.4-R0.88-SNAPSHOT</version>
     <name>Fabled</name>
     <description>A Minecraft Bukkit plugin aiming to provide an easy code API and skill editor for all server owners to
         create unique and fully custom classes and skills.
     </description>
     <url>
-        https://www.spigotmc.org/resources/fabled-an-rpg-engine-by-magemonkey-studio-formerly-proskillapi.91913/
+        https://www.spigotmc.org/resources/fabled-an-rpg-engine-by-voidedge-formerly-proskillapi.91913/
     </url>
 
     <properties>
@@ -45,6 +45,10 @@
         <repository>
             <id>codemc-releases</id>
             <url>https://repo.codemc.io/repository/maven-releases/</url>
+        </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
         </repository>
     </repositories>
 
@@ -96,7 +100,7 @@
         <dependency>
             <groupId>me.libraryaddict.disguises</groupId>
             <artifactId>libsdisguises</artifactId>
-            <version>11.0.14</version>
+            <version>11.0.15</version>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>
@@ -170,7 +174,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.5.4</version>
+                <version>3.5.5</version>
                 <configuration>
                     <systemPropertyVariables>
                         <CODEX_VERSION>${codex.version}</CODEX_VERSION>
@@ -233,9 +237,9 @@
 
     <developers>
         <developer>
-            <name>MageMonkeyStudio</name>
-            <organization>MageMonkeyStudio</organization>
-            <organizationUrl>https://magemonkey.studio</organizationUrl>
+            <name>VoidEdge</name>
+            <organization>VoidEdge</organization>
+            <organizationUrl>https://void.travja.dev</organizationUrl>
         </developer>
     </developers>
 
